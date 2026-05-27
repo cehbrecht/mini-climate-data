@@ -61,16 +61,22 @@ and versioned with the package.
 
 ```yaml
 reducer:
-  name: subset_netcdf
+  name: xarray_subset
   parameters:
     variables: [tas]
-    time: 2000-01-01
+    dimensions:
+      time: 0
+      lat:
+        stride: 100
+      lon:
+        stride: 100
 ```
 
 The scaffold includes `write_text` for smoke tests. The preferred NetCDF reducer is
 `xarray_subset`, which keeps the workflow Python-native and easy to test. Recipes
-name the local source file or glob, variables, index selections, label selections,
-and output artifacts.
+name the local source file or glob, variables, dimensions, coordinate selections,
+and output artifacts using reducer-neutral names. Backend-specific settings live under
+`backend_options`.
 
 ```yaml
 source:
@@ -81,18 +87,20 @@ reducer:
   name: xarray_subset
   parameters:
     variables: [tas]
-    isel:
-      time: 0
+    dimensions:
+      time:
+        index: 0
       lat:
         stride: 100
       lon:
         stride: 100
-    to_netcdf_kwargs:
-      engine: h5netcdf
-      encoding:
-        tas:
-          zlib: true
-          complevel: 9
+    backend_options:
+      to_netcdf_kwargs:
+        engine: h5netcdf
+        encoding:
+          tas:
+            zlib: true
+            complevel: 9
 artifacts:
   - path: cmip6/tas-small.nc
     logical_name: cmip6/tas-small.nc
@@ -114,16 +122,17 @@ source:
 reducer:
   name: ncks_subset
   parameters:
-    variable: tas
-    selectors:
-      - dimension: time
-        start: 0
-      - dimension: lat
+    variables: [tas]
+    dimensions:
+      time:
+        index: 0
+      lat:
         stride: 100
-      - dimension: lon
+      lon:
         stride: 100
-    compression_level: 9
-    netcdf4_classic: true
+    backend_options:
+      compression_level: 9
+      netcdf4_classic: true
 artifacts:
   - path: cmip6/tas-small.nc
     logical_name: cmip6/tas-small.nc

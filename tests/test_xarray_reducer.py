@@ -66,18 +66,20 @@ reducer:
   name: xarray_subset
   parameters:
     variables: [tas]
-    isel:
-      time: 0
+    dimensions:
+      time:
+        index: 0
       lat:
         stride: 10
       lon:
         stride: 10
-    sel:
+    coordinates:
       member_id: r1i1p1f1
-    open_kwargs:
-      decode_times: false
-    to_netcdf_kwargs:
-      engine: h5netcdf
+    backend_options:
+      open_kwargs:
+        decode_times: false
+      to_netcdf_kwargs:
+        engine: h5netcdf
 artifacts:
   - path: example/tas-small.nc
     logical_name: example/tas-small.nc

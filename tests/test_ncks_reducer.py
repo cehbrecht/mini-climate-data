@@ -24,15 +24,15 @@ reducer:
   name: ncks_subset
   parameters:
     variable: tas
-    selectors:
-      - dimension: time
-        start: 0
-      - dimension: lat
+    dimensions:
+      time: 0
+      lat:
         stride: 10
-      - dimension: lon
+      lon:
         stride: 10
-    compression_level: 1
-    netcdf4_classic: true
+    backend_options:
+      compression_level: 1
+      netcdf4_classic: true
 artifacts:
   - path: example/tas-small.nc
     logical_name: example/tas-small.nc
@@ -48,7 +48,7 @@ validation:
         commands.append(command)
         Path(command[-1]).write_bytes(b"reduced")
 
-    monkeypatch.setattr("mini_climate_data.reducers.subprocess.run", fake_run)
+    monkeypatch.setattr("mini_climate_data.reducers.nco.subprocess.run", fake_run)
 
     written = build_recipe(recipe_path, tmp_path / "artifacts")
 
@@ -102,7 +102,7 @@ def test_ncks_subset_matches_input_glob_to_declared_artifacts(
         commands.append(command)
         Path(command[-1]).write_bytes(b"reduced")
 
-    monkeypatch.setattr("mini_climate_data.reducers.subprocess.run", fake_run)
+    monkeypatch.setattr("mini_climate_data.reducers.nco.subprocess.run", fake_run)
 
     written = build_recipe(recipe, tmp_path / "artifacts")
 
@@ -146,7 +146,10 @@ def test_ncks_subset_rejects_bad_compression_level(
         data={
             "name": "example/bad-compression",
             "source": {"kind": "direct_url", "description": "local", "url": str(source)},
-            "reducer": {"name": "ncks_subset", "parameters": {"compression_level": 99}},
+            "reducer": {
+                "name": "ncks_subset",
+                "parameters": {"backend_options": {"compression_level": 99}},
+            },
             "artifacts": [
                 {"path": "example/tas.nc", "logical_name": "example/tas.nc", "max_size": 1024},
             ],
@@ -157,7 +160,7 @@ def test_ncks_subset_rejects_bad_compression_level(
     def fake_run(command: list[str], check: bool) -> Any:
         raise AssertionError("ncks should not run with invalid parameters")
 
-    monkeypatch.setattr("mini_climate_data.reducers.subprocess.run", fake_run)
+    monkeypatch.setattr("mini_climate_data.reducers.nco.subprocess.run", fake_run)
 
     with pytest.raises(ValueError, match="compression_level"):
         build_recipe(recipe, tmp_path / "artifacts")
