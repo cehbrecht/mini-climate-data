@@ -27,3 +27,10 @@ def test_build_config_excludes_generated_artifacts() -> None:
     assert '"/data"' in pyproject
     assert '"*.nc"' in pyproject
     assert '"*.zarr"' in pyproject
+
+
+def test_cli_alias_is_configured() -> None:
+    pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
+
+    assert 'mini-climate-data = "mini_climate_data.cli:main"' in pyproject
+    assert 'mcd = "mini_climate_data.cli:main"' in pyproject

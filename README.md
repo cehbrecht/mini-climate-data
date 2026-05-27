@@ -16,10 +16,10 @@ This repository is in early scaffold form. The first implementation provides a p
 ## Usage
 
 ```console
-mini-climate-data list
-mini-climate-data build recipes/example/hello-climate.yml
-mini-climate-data validate recipes/example/hello-climate.yml
-mini-climate-data build-registry
+mcd list
+mcd build recipes/example/hello-climate.yml
+mcd validate recipes/example/hello-climate.yml
+mcd build-registry
 ```
 
 Downstream packages will fetch generated artifacts by stable logical name:

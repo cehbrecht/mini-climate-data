@@ -52,10 +52,10 @@ For CDS manifest tables, `entry` is the intake subcatalog/table name, `ds_id` se
 ## Initial Workflow
 
 ```console
-mini-climate-data list
-mini-climate-data build recipes/example/hello-climate.yml
-mini-climate-data validate recipes/example/hello-climate.yml
-mini-climate-data build-registry
+mcd list
+mcd build recipes/example/hello-climate.yml
+mcd validate recipes/example/hello-climate.yml
+mcd build-registry
 ```
 
 Publishing to the `data` branch should be owned by CI once repository permissions and release policy are settled.

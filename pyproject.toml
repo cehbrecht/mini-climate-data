@@ -45,6 +45,7 @@ intake = [
 
 [project.scripts]
 mini-climate-data = "mini_climate_data.cli:main"
+mcd = "mini_climate_data.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/macpingu/mini-climate-data"
