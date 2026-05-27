@@ -66,6 +66,8 @@ packages = ["src/mini_climate_data"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "recipes" = "mini_climate_data/_recipes"
+"src/mini_climate_data/catalogs.yml" = "mini_climate_data/catalogs.yml"
+"src/mini_climate_data/recipe.schema.json" = "mini_climate_data/recipe.schema.json"
 
 [tool.hatch.build.targets.sdist]
 include = [

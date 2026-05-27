@@ -27,8 +27,10 @@ Supported source kinds:
 
 - `synthetic`: generated entirely by the reducer
 - `direct_url`: a stable URL points directly to an original file
-- `intake`: an intake catalog URL and entry identify the original dataset
-- `stac`: a STAC catalog URL identifies the search/catalog source, intended for ESGF2-style catalogs
+- `intake`: an intake catalog alias or URL and entry identify the original dataset
+- `stac`: a STAC catalog alias or URL identifies the search/catalog source, intended for ESGF2-style catalogs
+
+Catalogs can be referenced by short alias. Built-in aliases live in `src/mini_climate_data/catalogs.yml`; the first alias is `c3s`, pointing to the current cp4cds C3S manifest catalog.
 
 A Copernicus Climate Data Store recipe using the current CDS intake catalog should look like this:
 
@@ -37,15 +39,15 @@ source:
   kind: intake
   provenance: Copernicus Climate Data Store via the cp4cds C3S intake manifest.
   license: Copernicus C3S data license
-  catalog_url: https://raw.githubusercontent.com/cp4cds/c3s_34g_manifests/master/intake/catalogs/c3s.yaml
+  catalog: c3s
   entry: c3s-cica-atlas
   ds_id: cica-atlas-v025
-  url_column: url
+  url_param: url
   parameters:
     # Provider-specific intake parameters go here.
 ```
 
-For CDS manifest tables, `entry` is the intake subcatalog/table name, `ds_id` selects one row, and `url_column` names the column containing the original file URL. Reducers can resolve this with `mini_climate_data.sources.resolve_intake_url`, then apply their own small, explicit reduction.
+For CDS manifest tables, `entry` is the intake subcatalog/table name, `ds_id` selects one row, and `url_param` names the column containing the original file URL. `url_param` defaults to `url`, so most CDS recipes can omit it. Reducers can resolve this with `mini_climate_data.sources.resolve_intake_url`, then apply their own small, explicit reduction.
 
 ## Initial Workflow
 

@@ -26,6 +26,7 @@
         "license": { "type": "string" },
         "citation": { "type": "string" },
         "url": { "type": "string" },
+        "catalog": { "type": "string" },
         "catalog_url": { "type": "string" },
         "entry": { "type": "string" },
         "ds_id": { "type": "string" },
@@ -34,6 +35,10 @@
           "default": "ds_id"
         },
         "url_column": {
+          "type": "string",
+          "default": "url"
+        },
+        "url_param": {
           "type": "string",
           "default": "url"
         },
@@ -69,7 +74,11 @@
             "required": ["kind"]
           },
           "then": {
-            "required": ["catalog_url", "entry"]
+            "required": ["entry"],
+            "anyOf": [
+              { "required": ["catalog"] },
+              { "required": ["catalog_url"] }
+            ]
           }
         },
         {
@@ -78,7 +87,10 @@
             "required": ["kind"]
           },
           "then": {
-            "required": ["catalog_url"]
+            "anyOf": [
+              { "required": ["catalog"] },
+              { "required": ["catalog_url"] }
+            ]
           }
         }
       ]
