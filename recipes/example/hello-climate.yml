@@ -2,7 +2,7 @@ name: example/hello-climate
 summary: A byte-level smoke-test artifact for the mini-climate-data workflow.
 source:
   kind: synthetic
-  provenance: Created by the example reducer; not derived from observational or model data.
+  description: Created by the example reducer; not derived from observational or model data.
   license: Apache-2.0
 reducer:
   script: reducers/example_bytes.py

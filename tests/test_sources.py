@@ -16,7 +16,7 @@ def test_intake_source_shape_is_valid() -> None:
             "name": "copernicus/example",
             "source": {
                 "kind": "intake",
-                "provenance": "Copernicus Climate Data Store via cp4cds intake manifest.",
+                "description": "Copernicus Climate Data Store via cp4cds intake manifest.",
                 "license": "Copernicus C3S data license",
                 "catalog": "c3s",
                 "entry": "c3s-cica-atlas",
@@ -84,7 +84,7 @@ def test_direct_url_source_shape_is_valid() -> None:
             "name": "direct/example",
             "source": {
                 "kind": "direct_url",
-                "provenance": "Stable upstream test file.",
+                "description": "Stable upstream test file.",
                 "url": "https://example.test/data.nc",
             },
             "reducer": {"script": "reducers/example.py"},

@@ -15,14 +15,14 @@
     },
     "source": {
       "type": "object",
-      "required": ["kind", "provenance"],
+      "required": ["kind", "description"],
       "additionalProperties": false,
       "properties": {
         "kind": {
           "type": "string",
           "enum": ["synthetic", "direct_url", "intake", "stac"]
         },
-        "provenance": { "type": "string" },
+        "description": { "type": "string" },
         "license": { "type": "string" },
         "citation": { "type": "string" },
         "url": { "type": "string" },

@@ -12,7 +12,7 @@ Generated climate artifacts are deliberately excluded from the Python package. T
 
 Each recipe records:
 
-- source provenance, license, and citation where applicable
+- source description, license, and citation where applicable
 - reducer script and parameters
 - expected artifacts and logical names
 - strict maximum artifact sizes
@@ -37,7 +37,7 @@ A Copernicus Climate Data Store recipe using the current CDS intake catalog shou
 ```yaml
 source:
   kind: intake
-  provenance: Copernicus Climate Data Store via the cp4cds C3S intake manifest.
+  description: Copernicus Climate Data Store via the cp4cds C3S intake manifest.
   license: Copernicus C3S data license
   catalog: c3s
   entry: c3s-cica-atlas
