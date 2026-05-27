@@ -8,6 +8,31 @@ The `data` branch is a disposable generated cache. It contains reduced artifacts
 
 Generated climate artifacts are deliberately excluded from the Python package. The package should contain code, recipe definitions, schemas, and lightweight metadata only. Consumers fetch data by logical name through `pooch`.
 
+## Purpose
+
+This project is intended to replace ad hoc climate test-data copies with a small,
+reviewable build system. It borrows the useful idea from `mini-esgf-data`: start from
+larger authoritative NetCDF files and reduce them into tiny fixtures for tests,
+examples, and CI. It should not copy the old repository's generated data or recreate
+one-off generation scripts.
+
+The durable object in `mini-climate-data` is the recipe. A recipe explains where the
+source data came from, which packaged reducer is used, what small artifact should be
+written, and how the result is validated. Generated artifacts are disposable outputs
+of those recipes.
+
+Reducers should provide a small, friendly vocabulary for common reductions. For NetCDF
+subsets that means selecting variables, dimensions, and coordinates without exposing
+the user to backend-specific APIs first. Backend details such as `xarray.to_netcdf`
+options, `h5netcdf`, or NCO compression flags can still be passed through
+`backend_options` when a recipe needs them.
+
+The preferred path is Python-native reduction with `xarray_subset`. The NCO-backed
+`ncks_subset` reducer exists for cases where command-line subsetting of large local
+ESGF files is faster, more memory-efficient, or closer to an existing operational
+workflow. Both reducers should consume the same high-level recipe parameters where
+possible.
+
 ## Recipe Contract
 
 Each recipe records:
