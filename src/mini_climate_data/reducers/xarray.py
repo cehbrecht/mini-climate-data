@@ -4,7 +4,8 @@ from pathlib import Path
 from typing import Any
 
 from mini_climate_data.recipes import Recipe
-from mini_climate_data.reducers.base import (
+from mini_climate_data.reducers.base import Reducer
+from mini_climate_data.reducers.helpers import (
     DimensionSubset,
     backend_options,
     parameters,
@@ -15,32 +16,36 @@ from mini_climate_data.reducers.base import (
 )
 
 
-def xarray_subset(recipe: Recipe, artifact_root: Path) -> list[Path]:
+class XarraySubsetReducer(Reducer):
     """Build NetCDF subsets with xarray."""
-    try:
-        import xarray as xr
-    except ImportError as exc:
-        raise RuntimeError("Install mini-climate-data[netcdf] to use xarray_subset") from exc
 
-    config = parameters(recipe)
-    backend = backend_options(config, "xarray")
-    input_paths = resolve_input_paths(recipe, config, reducer_name="xarray_subset")
-    require_matching_artifacts(recipe, input_paths, reducer_name="xarray_subset")
+    name = "xarray_subset"
 
-    written: list[Path] = []
-    open_kwargs = backend.get("open_kwargs", {})
-    write_kwargs = backend.get("to_netcdf_kwargs", {})
-    spec = subset_spec(config)
+    def build(self, recipe: Recipe, artifact_root: Path) -> list[Path]:
+        try:
+            import xarray as xr
+        except ImportError as exc:
+            raise RuntimeError("Install mini-climate-data[netcdf] to use xarray_subset") from exc
 
-    for input_path, artifact in zip(input_paths, recipe.artifacts, strict=True):
-        target = target_path(artifact_root, artifact, config)
+        config = parameters(recipe)
+        backend = backend_options(config, "xarray")
+        input_paths = resolve_input_paths(recipe, config, reducer_name=self.name)
+        require_matching_artifacts(recipe, input_paths, reducer_name=self.name)
 
-        with xr.open_dataset(input_path, **open_kwargs) as dataset:
-            subset = _subset_dataset(dataset, spec.variables, spec.dimensions, spec.coordinates)
-            subset.to_netcdf(target, **write_kwargs)
-        written.append(target)
+        written: list[Path] = []
+        open_kwargs = backend.get("open_kwargs", {})
+        write_kwargs = backend.get("to_netcdf_kwargs", {})
+        spec = subset_spec(config)
 
-    return written
+        for input_path, artifact in zip(input_paths, recipe.artifacts, strict=True):
+            target = target_path(artifact_root, artifact, config)
+
+            with xr.open_dataset(input_path, **open_kwargs) as dataset:
+                subset = _subset_dataset(dataset, spec.variables, spec.dimensions, spec.coordinates)
+                subset.to_netcdf(target, **write_kwargs)
+            written.append(target)
+
+        return written
 
 
 def _subset_dataset(
@@ -69,3 +74,6 @@ def _isel_indexers(dimensions: list[DimensionSubset]) -> dict[str, Any]:
         else:
             indexers[dimension.name] = slice(dimension.start, dimension.stop, dimension.stride)
     return indexers
+
+
+xarray_subset = XarraySubsetReducer()

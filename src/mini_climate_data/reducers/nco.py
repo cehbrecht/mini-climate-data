@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Any
 
 from mini_climate_data.recipes import Recipe
-from mini_climate_data.reducers.base import (
+from mini_climate_data.reducers.base import Reducer
+from mini_climate_data.reducers.helpers import (
     DimensionSubset,
     backend_options,
     parameters,
@@ -16,24 +17,28 @@ from mini_climate_data.reducers.base import (
 )
 
 
-def ncks_subset(recipe: Recipe, artifact_root: Path) -> list[Path]:
+class NcksSubsetReducer(Reducer):
     """Build NetCDF subsets with NCO's ncks command."""
-    config = parameters(recipe)
-    backend = backend_options(config, "nco")
-    input_paths = resolve_input_paths(recipe, config, reducer_name="ncks_subset")
-    require_matching_artifacts(recipe, input_paths, reducer_name="ncks_subset")
 
-    spec = subset_spec(config)
-    if spec.coordinates:
-        raise ValueError("ncks_subset does not support coordinate label selections")
+    name = "ncks_subset"
 
-    written: list[Path] = []
-    for input_path, artifact in zip(input_paths, recipe.artifacts, strict=True):
-        target = target_path(artifact_root, artifact, config)
-        _run_ncks(input_path, target, spec.variables, spec.dimensions, backend)
-        written.append(target)
+    def build(self, recipe: Recipe, artifact_root: Path) -> list[Path]:
+        config = parameters(recipe)
+        backend = backend_options(config, "nco")
+        input_paths = resolve_input_paths(recipe, config, reducer_name=self.name)
+        require_matching_artifacts(recipe, input_paths, reducer_name=self.name)
 
-    return written
+        spec = subset_spec(config)
+        if spec.coordinates:
+            raise ValueError("ncks_subset does not support coordinate label selections")
+
+        written: list[Path] = []
+        for input_path, artifact in zip(input_paths, recipe.artifacts, strict=True):
+            target = target_path(artifact_root, artifact, config)
+            _run_ncks(input_path, target, spec.variables, spec.dimensions, backend)
+            written.append(target)
+
+        return written
 
 
 def _run_ncks(
@@ -73,3 +78,6 @@ def _format_dimension(dimension: DimensionSubset) -> str:
         values.pop()
     formatted_values = [str(value) if value is not None else "" for value in values]
     return ",".join([dimension.name, *formatted_values])
+
+
+ncks_subset = NcksSubsetReducer()
