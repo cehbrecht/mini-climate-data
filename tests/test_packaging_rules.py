@@ -33,3 +33,12 @@ def test_cli_alias_is_configured() -> None:
 
     assert 'mini-climate-data = "mini_climate_data.cli:main"' in pyproject
     assert 'mcd = "mini_climate_data.cli:main"' in pyproject
+
+
+def test_recipes_do_not_reference_external_reducer_scripts() -> None:
+    recipe_text = "\n".join(
+        path.read_text(encoding="utf-8") for path in Path("recipes").rglob("*.yml")
+    )
+
+    assert "script:" not in recipe_text
+    assert "function:" not in recipe_text

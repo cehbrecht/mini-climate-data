@@ -8,6 +8,7 @@ Reproducible recipes and tiny generated climate datasets for tests, examples, an
 - `data` is a disposable generated branch for reduced artifacts and a `pooch` registry.
 - Python packages never include generated data artifacts.
 - Every artifact is traceable to a recipe and reducer.
+- Users add recipes; supported reduction code lives in the `mini_climate_data` package.
 
 ## Status
 

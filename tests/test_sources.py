@@ -29,7 +29,7 @@ def test_intake_source_shape_is_valid() -> None:
                 "url_param": "url",
                 "parameters": {"variable": "tas"},
             },
-            "reducer": {"script": "reducers/example.py"},
+            "reducer": {"name": "subset_netcdf"},
             "artifacts": [
                 {
                     "path": "copernicus/example.nc",
@@ -95,7 +95,7 @@ def test_direct_url_source_shape_is_valid() -> None:
                 "description": "Stable upstream test file.",
                 "url": "https://example.test/data.nc",
             },
-            "reducer": {"script": "reducers/example.py"},
+            "reducer": {"name": "subset_netcdf"},
             "artifacts": [
                 {
                     "path": "direct/example.nc",

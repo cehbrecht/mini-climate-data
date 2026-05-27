@@ -5,8 +5,7 @@ source:
   description: Created by the example reducer; not derived from observational or model data.
   license: Apache-2.0
 reducer:
-  script: reducers/example_bytes.py
-  function: reduce
+  name: write_text
   parameters:
     message: "tiny climate fixture\n"
 artifacts:

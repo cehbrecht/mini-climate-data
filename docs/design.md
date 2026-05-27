@@ -13,7 +13,7 @@ Generated climate artifacts are deliberately excluded from the Python package. T
 Each recipe records:
 
 - source description, license, and citation where applicable
-- reducer script and parameters
+- packaged reducer name and parameters
 - expected artifacts and logical names
 - strict maximum artifact sizes
 - validation checks
@@ -47,7 +47,28 @@ source:
     # Provider-specific intake parameters go here.
 ```
 
-For CDS manifest tables, `entry` is the intake subcatalog/table name, `ds_id` selects one row, and `url_param` names the column containing the original file URL. `url_param` defaults to `url`, so most CDS recipes can omit it. Reducers can resolve this with `mini_climate_data.sources.resolve_intake_url`, then apply their own small, explicit reduction.
+For CDS manifest tables, `entry` is the intake subcatalog/table name, `ds_id` selects one
+row, and `url_param` names the column containing the original file URL. `url_param`
+defaults to `url`, so most CDS recipes can omit it. Reducers can resolve this with
+`mini_climate_data.sources.resolve_intake_url`, then apply their own small, explicit
+reduction.
+
+## Reducers
+
+Recipes select a reducer implemented in the `mini_climate_data` package. Users add recipe
+YAML, not project-local Python scripts. This keeps reduction logic reviewed, tested, reusable,
+and versioned with the package.
+
+```yaml
+reducer:
+  name: subset_netcdf
+  parameters:
+    variables: [tas]
+    time: 2000-01-01
+```
+
+The current scaffold includes `write_text` for smoke tests. Real climate reducers should be
+added to the package code as the first datasets are introduced.
 
 ## Initial Workflow
 

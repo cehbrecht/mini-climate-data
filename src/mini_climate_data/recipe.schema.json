@@ -97,11 +97,13 @@
     },
     "reducer": {
       "type": "object",
-      "required": ["script"],
+      "required": ["name"],
       "additionalProperties": false,
       "properties": {
-        "script": { "type": "string" },
-        "function": { "type": "string" },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
+        },
         "parameters": {
           "type": "object",
           "additionalProperties": true

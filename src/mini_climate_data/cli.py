@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-import subprocess
-import sys
-from pathlib import Path
-
 import click
 
 from mini_climate_data.recipes import iter_recipes, validate_recipe
+from mini_climate_data.reducers import build_recipe
 from mini_climate_data.registry import build_registry
 from mini_climate_data.validation import validate_artifacts
 
@@ -35,14 +32,9 @@ def list_recipes(recipe_root: str) -> None:
 @click.option("--artifact-root", default="artifacts", show_default=True, type=click.Path())
 def build(recipe: str, artifact_root: str) -> None:
     """Run the reducer declared by a recipe."""
-    loaded = validate_recipe(recipe)
-    script = Path(loaded.data["reducer"]["script"])
-    if not script.exists():
-        raise click.ClickException(f"Reducer script does not exist: {script}")
-    subprocess.run(
-        [sys.executable, str(script), "--recipe", recipe, "--output-dir", artifact_root],
-        check=True,
-    )
+    validate_recipe(recipe)
+    for path in build_recipe(recipe, artifact_root):
+        click.echo(f"wrote {path}")
 
 
 @main.command()
