@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from collections.abc import Callable
 from pathlib import Path
-from typing import Any
 
 from mini_climate_data.recipes import Recipe, load_recipe
-
-Reducer = Callable[[Recipe, Path], list[Path]]
+from mini_climate_data.reducers.base import Reducer
+from mini_climate_data.reducers.nco import ncks_subset
+from mini_climate_data.reducers.synthetic import write_text
+from mini_climate_data.reducers.xarray import xarray_subset
 
 
 def build_recipe(
@@ -24,21 +24,8 @@ def build_recipe(
     return reducer(loaded, Path(artifact_root))
 
 
-def write_text(recipe: Recipe, artifact_root: Path) -> list[Path]:
-    """Write tiny synthetic text artifacts for workflow smoke tests."""
-    parameters: dict[str, Any] = recipe.data.get("reducer", {}).get("parameters", {})
-    message = parameters.get("message", "")
-    written: list[Path] = []
-
-    for artifact in recipe.artifacts:
-        target = artifact_root / artifact["path"]
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(message, encoding="utf-8")
-        written.append(target)
-
-    return written
-
-
 REDUCERS: dict[str, Reducer] = {
+    "ncks_subset": ncks_subset,
     "write_text": write_text,
+    "xarray_subset": xarray_subset,
 }

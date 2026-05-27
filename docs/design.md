@@ -61,14 +61,86 @@ and versioned with the package.
 
 ```yaml
 reducer:
-  name: subset_netcdf
+  name: xarray_subset
   parameters:
     variables: [tas]
-    time: 2000-01-01
+    dimensions:
+      time: 0
+      lat:
+        stride: 100
+      lon:
+        stride: 100
 ```
 
-The current scaffold includes `write_text` for smoke tests. Real climate reducers should be
-added to the package code as the first datasets are introduced.
+The scaffold includes `write_text` for smoke tests. The preferred NetCDF reducer is
+`xarray_subset`, which keeps the workflow Python-native and easy to test. Recipes
+name the local source file or glob, variables, dimensions, coordinate selections,
+and output artifacts using reducer-neutral names. Backend-specific settings live under
+`backend_options`.
+
+```yaml
+source:
+  kind: direct_url
+  description: Local original CMIP6 file mirrored from an authoritative archive.
+  url: file:///badc/cmip6/data/CMIP6/.../tas_Amon_..._201501-210012.nc
+reducer:
+  name: xarray_subset
+  parameters:
+    variables: [tas]
+    dimensions:
+      time:
+        index: 0
+      lat:
+        stride: 100
+      lon:
+        stride: 100
+    backend_options:
+      to_netcdf_kwargs:
+        engine: h5netcdf
+        encoding:
+          tas:
+            zlib: true
+            complevel: 9
+artifacts:
+  - path: cmip6/tas-small.nc
+    logical_name: cmip6/tas-small.nc
+    max_size: 1048576
+```
+
+`h5py` should stay an implementation detail. The `netcdf` extra installs `h5netcdf`,
+which uses `h5py` underneath and gives xarray a good HDF5/NetCDF4 writer without
+recipes depending directly on h5py APIs.
+
+`ncks_subset` is also available as an optional NCO-backed reducer for very large
+local files where command-line subsetting is materially faster or lower-memory.
+
+```yaml
+source:
+  kind: direct_url
+  description: Local original CMIP6 file mirrored from an authoritative archive.
+  url: file:///badc/cmip6/data/CMIP6/.../tas_Amon_..._201501-210012.nc
+reducer:
+  name: ncks_subset
+  parameters:
+    variables: [tas]
+    dimensions:
+      time:
+        index: 0
+      lat:
+        stride: 100
+      lon:
+        stride: 100
+    backend_options:
+      compression_level: 9
+      netcdf4_classic: true
+artifacts:
+  - path: cmip6/tas-small.nc
+    logical_name: cmip6/tas-small.nc
+    max_size: 1048576
+```
+
+For multiple source files, use `input_glob` and declare one artifact for each matched
+file. This keeps output naming explicit and reviewable.
 
 ## Initial Workflow
 
