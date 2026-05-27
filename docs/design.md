@@ -38,12 +38,14 @@ source:
   provenance: Copernicus Climate Data Store via the cp4cds C3S intake manifest.
   license: Copernicus C3S data license
   catalog_url: https://raw.githubusercontent.com/cp4cds/c3s_34g_manifests/master/intake/catalogs/c3s.yaml
-  entry: some_catalog_entry
+  entry: c3s-cica-atlas
+  ds_id: cica-atlas-v025
+  url_column: url
   parameters:
     # Provider-specific intake parameters go here.
 ```
 
-Reducers can open the entry with `mini_climate_data.sources.open_intake_source`, then apply their own small, explicit reduction.
+For CDS manifest tables, `entry` is the intake subcatalog/table name, `ds_id` selects one row, and `url_column` names the column containing the original file URL. Reducers can resolve this with `mini_climate_data.sources.resolve_intake_url`, then apply their own small, explicit reduction.
 
 ## Initial Workflow
 

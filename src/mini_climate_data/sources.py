@@ -41,3 +41,38 @@ def open_intake_source(source: SourceSpec | dict[str, Any]):
         source_entry = source_entry(**parameters)
 
     return source_entry
+
+
+def resolve_intake_url(source: SourceSpec | dict[str, Any]) -> str:
+    """Resolve a URL from an intake table using a recipe's row-selection fields."""
+    data = source.data if isinstance(source, SourceSpec) else source
+    if "ds_id" not in data:
+        raise ValueError("Intake URL resolution requires source.ds_id")
+
+    table_source = open_intake_source(data)
+    table = table_source.read()
+    return select_table_url(
+        table,
+        ds_id=data["ds_id"],
+        ds_id_column=data.get("ds_id_column", "ds_id"),
+        url_column=data.get("url_column", "url"),
+    )
+
+
+def select_table_url(table: Any, *, ds_id: str, ds_id_column: str = "ds_id", url_column: str = "url") -> str:
+    """Select one URL from a pandas-like table or iterable of row mappings."""
+    if hasattr(table, "loc") and hasattr(table, "iloc"):
+        matches = table.loc[table[ds_id_column] == ds_id]
+        if len(matches) != 1:
+            raise ValueError(f"Expected one row for {ds_id_column}={ds_id!r}, found {len(matches)}")
+        return str(matches.iloc[0][url_column])
+
+    if hasattr(table, "to_dict"):
+        rows = table.to_dict("records")
+    else:
+        rows = list(table)
+
+    matches = [row for row in rows if row[ds_id_column] == ds_id]
+    if len(matches) != 1:
+        raise ValueError(f"Expected one row for {ds_id_column}={ds_id!r}, found {len(matches)}")
+    return str(matches[0][url_column])

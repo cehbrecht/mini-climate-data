@@ -3,7 +3,7 @@
 from mini_climate_data.fetching import fetch
 from mini_climate_data.registry import build_registry, load_registry
 from mini_climate_data.recipes import iter_recipes, load_recipe, validate_recipe
-from mini_climate_data.sources import load_source_spec
+from mini_climate_data.sources import load_source_spec, resolve_intake_url
 
 __all__ = [
     "build_registry",
@@ -12,5 +12,6 @@ __all__ = [
     "load_source_spec",
     "load_recipe",
     "load_registry",
+    "resolve_intake_url",
     "validate_recipe",
 ]

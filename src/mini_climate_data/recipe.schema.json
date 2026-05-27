@@ -28,6 +28,15 @@
         "url": { "type": "string" },
         "catalog_url": { "type": "string" },
         "entry": { "type": "string" },
+        "ds_id": { "type": "string" },
+        "ds_id_column": {
+          "type": "string",
+          "default": "ds_id"
+        },
+        "url_column": {
+          "type": "string",
+          "default": "url"
+        },
         "parameters": {
           "type": "object",
           "additionalProperties": true
