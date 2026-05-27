@@ -67,8 +67,37 @@ reducer:
     time: 2000-01-01
 ```
 
-The current scaffold includes `write_text` for smoke tests. Real climate reducers should be
-added to the package code as the first datasets are introduced.
+The scaffold includes `write_text` for smoke tests. The first real reducer is
+`ncks_subset`, a small wrapper around NCO's `ncks` command. It deliberately avoids
+dataset-specific hard-coding: recipes name the local source file or glob, variables,
+dimension selectors, compression, and output artifacts.
+
+```yaml
+source:
+  kind: direct_url
+  description: Local original CMIP6 file mirrored from an authoritative archive.
+  url: file:///badc/cmip6/data/CMIP6/.../tas_Amon_..._201501-210012.nc
+reducer:
+  name: ncks_subset
+  parameters:
+    variable: tas
+    selectors:
+      - dimension: time
+        start: 0
+      - dimension: lat
+        stride: 100
+      - dimension: lon
+        stride: 100
+    compression_level: 9
+    netcdf4_classic: true
+artifacts:
+  - path: cmip6/tas-small.nc
+    logical_name: cmip6/tas-small.nc
+    max_size: 1048576
+```
+
+For multiple source files, use `input_glob` and declare one artifact for each matched
+file. This keeps output naming explicit and reviewable.
 
 ## Initial Workflow
 
