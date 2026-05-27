@@ -69,22 +69,58 @@ def ncks_subset(recipe: Recipe, artifact_root: Path) -> list[Path]:
     return written
 
 
-def _resolve_input_paths(recipe: Recipe, parameters: dict[str, Any]) -> list[Path]:
+def xarray_subset(recipe: Recipe, artifact_root: Path) -> list[Path]:
+    """Build NetCDF subsets with xarray."""
+    try:
+        import xarray as xr
+    except ImportError as exc:
+        raise RuntimeError("Install mini-climate-data[netcdf] to use xarray_subset") from exc
+
+    parameters: dict[str, Any] = recipe.data.get("reducer", {}).get("parameters", {})
+    input_paths = _resolve_input_paths(recipe, parameters, reducer_name="xarray_subset")
+
+    if len(input_paths) != len(recipe.artifacts):
+        raise ValueError(
+            f"xarray_subset needs one declared artifact per input file; "
+            f"found {len(input_paths)} input(s) and {len(recipe.artifacts)} artifact(s)"
+        )
+
+    written: list[Path] = []
+    open_kwargs = parameters.get("open_kwargs", {})
+    write_kwargs = parameters.get("to_netcdf_kwargs", {})
+
+    for input_path, artifact in zip(input_paths, recipe.artifacts, strict=True):
+        target = artifact_root / artifact["path"]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if target.exists() and parameters.get("overwrite", True):
+            target.unlink()
+
+        with xr.open_dataset(input_path, **open_kwargs) as dataset:
+            subset = _subset_xarray_dataset(dataset, parameters)
+            subset.to_netcdf(target, **write_kwargs)
+        written.append(target)
+
+    return written
+
+
+def _resolve_input_paths(
+    recipe: Recipe, parameters: dict[str, Any], *, reducer_name: str = "ncks_subset"
+) -> list[Path]:
     if "input_glob" in parameters:
         paths = sorted(Path(path) for path in glob.glob(str(parameters["input_glob"])))
     else:
         value = parameters.get("input") or recipe.data["source"].get("url")
         if not value:
-            raise ValueError("ncks_subset requires reducer.parameters.input or source.url")
+            raise ValueError(f"{reducer_name} requires reducer.parameters.input or source.url")
         paths = [Path(_strip_file_url(str(value)))]
 
     if not paths:
-        raise FileNotFoundError("ncks_subset input_glob did not match any files")
+        raise FileNotFoundError(f"{reducer_name} input_glob did not match any files")
 
     missing = [path for path in paths if not path.is_file()]
     if missing:
         formatted = ", ".join(str(path) for path in missing)
-        raise FileNotFoundError(f"ncks_subset input file(s) do not exist: {formatted}")
+        raise FileNotFoundError(f"{reducer_name} input file(s) do not exist: {formatted}")
 
     number = parameters.get("number")
     if number is not None and int(number) > 0:
@@ -120,6 +156,36 @@ def _run_ncks(input_path: Path, output_path: Path, parameters: dict[str, Any]) -
     subprocess.run(command, check=True)
 
 
+def _subset_xarray_dataset(dataset: Any, parameters: dict[str, Any]) -> Any:
+    variables = _variables(parameters)
+    subset = dataset[variables] if variables else dataset
+
+    isel = _indexers(parameters.get("isel", {}), integer=True)
+    if isel:
+        subset = subset.isel(isel)
+
+    sel = _indexers(parameters.get("sel", {}), integer=False)
+    if sel:
+        subset = subset.sel(sel)
+
+    return subset
+
+
+def _indexers(config: dict[str, Any], *, integer: bool) -> dict[str, Any]:
+    indexers: dict[str, Any] = {}
+    for dimension, value in config.items():
+        if isinstance(value, dict):
+            start = value.get("start")
+            stop = value.get("stop")
+            stride = value.get("stride")
+            indexers[dimension] = slice(start, stop, stride)
+        elif integer:
+            indexers[dimension] = int(value)
+        else:
+            indexers[dimension] = value
+    return indexers
+
+
 def _variables(parameters: dict[str, Any]) -> list[str]:
     if "variables" in parameters:
         variables = parameters["variables"]
@@ -148,4 +214,5 @@ def _format_selector(selector: dict[str, Any]) -> str:
 REDUCERS: dict[str, Reducer] = {
     "ncks_subset": ncks_subset,
     "write_text": write_text,
+    "xarray_subset": xarray_subset,
 }
