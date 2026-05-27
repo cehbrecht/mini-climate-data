@@ -1,15 +1,15 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import jsonschema
 import yaml
 
 from mini_climate_data._paths import PACKAGE, bundled_recipes_dir
-
 
 SCHEMA_RESOURCE = "recipe.schema.json"
 

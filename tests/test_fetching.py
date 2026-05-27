@@ -19,7 +19,12 @@ class FakePoochModule:
 def test_fetch_defaults_to_data_branch(monkeypatch) -> None:
     monkeypatch.setitem(sys.modules, "pooch", FakePoochModule)
 
-    name, kwargs = fetch("cmip6/tas-small.nc", registry={"cmip6/tas-small.nc": "sha256:" + "a" * 64})
+    name, kwargs = fetch(
+        "cmip6/tas-small.nc",
+        registry={"cmip6/tas-small.nc": "sha256:" + "a" * 64},
+    )
 
     assert name == "cmip6/tas-small.nc"
-    assert kwargs["base_url"] == "https://raw.githubusercontent.com/macpingu/mini-climate-data/data/"
+    assert (
+        kwargs["base_url"] == "https://raw.githubusercontent.com/macpingu/mini-climate-data/data/"
+    )

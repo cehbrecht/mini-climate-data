@@ -10,7 +10,6 @@ import yaml
 from mini_climate_data._paths import PACKAGE
 from mini_climate_data.recipes import Recipe, load_recipe
 
-
 CATALOGS_RESOURCE = "catalogs.yml"
 
 
@@ -95,7 +94,13 @@ def resolve_intake_url(source: SourceSpec | dict[str, Any]) -> str:
     )
 
 
-def select_table_url(table: Any, *, ds_id: str, ds_id_column: str = "ds_id", url_param: str = "url") -> str:
+def select_table_url(
+    table: Any,
+    *,
+    ds_id: str,
+    ds_id_column: str = "ds_id",
+    url_param: str = "url",
+) -> str:
     """Select one URL from a pandas-like table or iterable of row mappings."""
     if hasattr(table, "loc") and hasattr(table, "iloc"):
         matches = table.loc[table[ds_id_column] == ds_id]

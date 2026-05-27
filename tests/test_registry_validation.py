@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from reducers.example_bytes import reduce
+
 from mini_climate_data.registry import build_registry
 from mini_climate_data.validation import validate_artifacts
-from reducers.example_bytes import reduce
 
 
 def test_reduce_validate_and_build_registry(tmp_path: Path) -> None:

@@ -7,8 +7,7 @@ from typing import Any
 
 import yaml
 
-from mini_climate_data.recipes import Recipe, iter_recipes
-
+from mini_climate_data.recipes import iter_recipes
 
 REGISTRY_NAME = "registry.json"
 
@@ -39,7 +38,10 @@ def build_registry(
     if output:
         output_path = Path(output)
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(json.dumps(registry, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        output_path.write_text(
+            json.dumps(registry, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
 
     return registry
 
@@ -50,6 +52,8 @@ def load_registry(path: str | Path) -> dict[str, str]:
         data: Any = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
     else:
         data = json.loads(registry_path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in data.items()):
+    if not isinstance(data, dict) or not all(
+        isinstance(k, str) and isinstance(v, str) for k, v in data.items()
+    ):
         raise ValueError(f"Registry must be a mapping of logical names to hashes: {registry_path}")
     return data

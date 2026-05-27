@@ -17,7 +17,13 @@ def main() -> None:
 
 
 @main.command("list")
-@click.option("--recipes", "recipe_root", default="recipes", show_default=True, type=click.Path(exists=True))
+@click.option(
+    "--recipes",
+    "recipe_root",
+    default="recipes",
+    show_default=True,
+    type=click.Path(exists=True),
+)
 def list_recipes(recipe_root: str) -> None:
     """List available recipes."""
     for recipe in iter_recipes(recipe_root):
@@ -41,7 +47,12 @@ def build(recipe: str, artifact_root: str) -> None:
 
 @main.command()
 @click.argument("target", type=click.Path(exists=True))
-@click.option("--artifact-root", default="artifacts", show_default=True, type=click.Path(exists=True))
+@click.option(
+    "--artifact-root",
+    default="artifacts",
+    show_default=True,
+    type=click.Path(exists=True),
+)
 def validate(target: str, artifact_root: str) -> None:
     """Validate a recipe's generated artifacts."""
     checked = validate_artifacts(target, artifact_root)
@@ -50,8 +61,19 @@ def validate(target: str, artifact_root: str) -> None:
 
 
 @main.command("build-registry")
-@click.option("--recipes", "recipe_root", default="recipes", show_default=True, type=click.Path(exists=True))
-@click.option("--artifact-root", default="artifacts", show_default=True, type=click.Path(exists=True))
+@click.option(
+    "--recipes",
+    "recipe_root",
+    default="recipes",
+    show_default=True,
+    type=click.Path(exists=True),
+)
+@click.option(
+    "--artifact-root",
+    default="artifacts",
+    show_default=True,
+    type=click.Path(exists=True),
+)
 @click.option("--output", default="artifacts/registry.json", show_default=True, type=click.Path())
 def build_registry_command(recipe_root: str, artifact_root: str, output: str) -> None:
     """Generate the pooch registry from built artifacts."""

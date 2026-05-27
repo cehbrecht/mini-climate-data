@@ -31,3 +31,12 @@ path = fetch("cmip6/tas-small.nc")
 ```
 
 See [docs/design.md](docs/design.md) for the branch and recipe model.
+
+## Development
+
+```console
+make dev
+make test
+make lint
+make format
+```

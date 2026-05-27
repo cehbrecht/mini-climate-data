@@ -34,6 +34,7 @@ dependencies = [
 dev = [
   "build>=1.2",
   "pytest>=8.0",
+  "ruff>=0.8",
   "twine>=5.0",
 ]
 netcdf = [
@@ -93,3 +94,17 @@ exclude = [
 addopts = "-ra"
 pythonpath = ["src"]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests", "reducers"]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+  "B",
+]

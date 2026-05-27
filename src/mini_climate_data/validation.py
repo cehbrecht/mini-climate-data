@@ -6,7 +6,10 @@ from mini_climate_data.recipes import Recipe, load_recipe
 from mini_climate_data.registry import sha256
 
 
-def validate_artifacts(recipe: str | Path | Recipe, artifact_root: str | Path = "artifacts") -> list[Path]:
+def validate_artifacts(
+    recipe: str | Path | Recipe,
+    artifact_root: str | Path = "artifacts",
+) -> list[Path]:
     loaded = recipe if isinstance(recipe, Recipe) else load_recipe(recipe)
     artifact_base = Path(artifact_root)
     checked: list[Path] = []
@@ -43,7 +46,9 @@ def _validate_openable(path: Path, engine: str) -> None:
         try:
             import xarray as xr
         except ImportError as exc:
-            raise RuntimeError("Install mini-climate-data[netcdf] to validate NetCDF artifacts") from exc
+            raise RuntimeError(
+                "Install mini-climate-data[netcdf] to validate NetCDF artifacts"
+            ) from exc
         with xr.open_dataset(path):
             return
 
@@ -51,7 +56,9 @@ def _validate_openable(path: Path, engine: str) -> None:
         try:
             import xarray as xr
         except ImportError as exc:
-            raise RuntimeError("Install mini-climate-data[netcdf] to validate Zarr artifacts") from exc
+            raise RuntimeError(
+                "Install mini-climate-data[netcdf] to validate Zarr artifacts"
+            ) from exc
         xr.open_zarr(path)
         return
 

@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 from mini_climate_data.recipes import validate_recipe_data
-from mini_climate_data.sources import load_catalog_aliases, load_source_spec, resolve_catalog_url, select_table_url
+from mini_climate_data.sources import (
+    load_catalog_aliases,
+    load_source_spec,
+    resolve_catalog_url,
+    select_table_url,
+)
 
 
 def test_load_source_spec_from_example_recipe() -> None:
@@ -63,7 +68,10 @@ def test_select_table_url_rejects_missing_match() -> None:
 def test_catalog_alias_resolves_c3s_url() -> None:
     aliases = load_catalog_aliases()
 
-    assert aliases["c3s"] == "https://raw.githubusercontent.com/cp4cds/c3s_34g_manifests/master/intake/catalogs/c3s.yaml"
+    assert (
+        aliases["c3s"]
+        == "https://raw.githubusercontent.com/cp4cds/c3s_34g_manifests/master/intake/catalogs/c3s.yaml"
+    )
     assert resolve_catalog_url({"catalog": "c3s"}) == aliases["c3s"]
 
 
