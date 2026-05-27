@@ -1,0 +1,89 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mini-climate-data"
+version = "0.1.0"
+description = "Reproducible recipes and tiny generated climate datasets for tests, examples, and CI."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [
+  { name = "mini-climate-data contributors" },
+]
+keywords = ["climate", "test-data", "netcdf", "reproducibility"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Atmospheric Science",
+]
+dependencies = [
+  "click>=8.1",
+  "jsonschema>=4.22",
+  "pooch>=1.8",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2",
+  "pytest>=8.0",
+  "twine>=5.0",
+]
+netcdf = [
+  "xarray>=2024.3",
+]
+
+[project.scripts]
+mini-climate-data = "mini_climate_data.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/macpingu/mini-climate-data"
+Repository = "https://github.com/macpingu/mini-climate-data"
+Issues = "https://github.com/macpingu/mini-climate-data/issues"
+
+[tool.hatch.build]
+exclude = [
+  "/data",
+  "/artifacts",
+  "/build-artifacts",
+  "/dist",
+  "*.nc",
+  "*.zarr",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mini_climate_data"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"recipes" = "mini_climate_data/_recipes"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/recipes",
+  "/reducers",
+  "/tests",
+  "/docs",
+  "/README.md",
+  "/LICENSE",
+  "/pyproject.toml",
+]
+exclude = [
+  "/data",
+  "/artifacts",
+  "/build-artifacts",
+  "*.nc",
+  "*.zarr",
+]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+pythonpath = ["src"]
+testpaths = ["tests"]
