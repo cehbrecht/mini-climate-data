@@ -39,6 +39,9 @@ dev = [
 netcdf = [
   "xarray>=2024.3",
 ]
+intake = [
+  "intake>=2.0",
+]
 
 [project.scripts]
 mini-climate-data = "mini_climate_data.cli:main"

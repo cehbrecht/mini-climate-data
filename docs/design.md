@@ -19,6 +19,32 @@ Each recipe records:
 - validation checks
 - checksums after artifacts are built
 
+## Source Types
+
+Recipes should make the original source explicit, but the source block should not force all providers into one access pattern.
+
+Supported source kinds:
+
+- `synthetic`: generated entirely by the reducer
+- `direct_url`: a stable URL points directly to an original file
+- `intake`: an intake catalog URL and entry identify the original dataset
+- `stac`: a STAC catalog URL identifies the search/catalog source, intended for ESGF2-style catalogs
+
+A Copernicus Climate Data Store recipe using the current CDS intake catalog should look like this:
+
+```yaml
+source:
+  kind: intake
+  provenance: Copernicus Climate Data Store via the cp4cds C3S intake manifest.
+  license: Copernicus C3S data license
+  catalog_url: https://raw.githubusercontent.com/cp4cds/c3s_34g_manifests/master/intake/catalogs/c3s.yaml
+  entry: some_catalog_entry
+  parameters:
+    # Provider-specific intake parameters go here.
+```
+
+Reducers can open the entry with `mini_climate_data.sources.open_intake_source`, then apply their own small, explicit reduction.
+
 ## Initial Workflow
 
 ```console

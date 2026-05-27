@@ -16,14 +16,63 @@
     "source": {
       "type": "object",
       "required": ["kind", "provenance"],
-      "additionalProperties": true,
+      "additionalProperties": false,
       "properties": {
-        "kind": { "type": "string" },
+        "kind": {
+          "type": "string",
+          "enum": ["synthetic", "direct_url", "intake", "stac"]
+        },
         "provenance": { "type": "string" },
         "license": { "type": "string" },
         "citation": { "type": "string" },
-        "url": { "type": "string" }
-      }
+        "url": { "type": "string" },
+        "catalog_url": { "type": "string" },
+        "entry": { "type": "string" },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "intake_kwargs": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "collection": { "type": "string" },
+        "item_id": { "type": "string" },
+        "asset": { "type": "string" },
+        "query": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "kind": { "const": "direct_url" } },
+            "required": ["kind"]
+          },
+          "then": {
+            "required": ["url"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "kind": { "const": "intake" } },
+            "required": ["kind"]
+          },
+          "then": {
+            "required": ["catalog_url", "entry"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "kind": { "const": "stac" } },
+            "required": ["kind"]
+          },
+          "then": {
+            "required": ["catalog_url"]
+          }
+        }
+      ]
     },
     "reducer": {
       "type": "object",
