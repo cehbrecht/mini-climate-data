@@ -1,0 +1,17 @@
+name: example/hello-climate
+summary: A byte-level smoke-test artifact for the mini-climate-data workflow.
+source:
+  kind: synthetic
+  description: Created by the example reducer; not derived from observational or model data.
+  license: Apache-2.0
+reducer:
+  name: write_text
+  parameters:
+    message: "tiny climate fixture\n"
+artifacts:
+  - path: example/hello-climate.txt
+    logical_name: example/hello-climate.txt
+    max_size: 1024
+validation:
+  openable: true
+  engine: bytes
