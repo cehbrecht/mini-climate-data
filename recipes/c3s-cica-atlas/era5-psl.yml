@@ -10,7 +10,7 @@ source:
   ds_id: c3s-cica-atlas.psl.ERA5.mon.v25
   url_param: url
 reducer:
-  name: xarray_subset
+  name: ncks_subset
   parameters:
     variables: [psl]
     dimensions:
@@ -19,14 +19,13 @@ reducer:
       lon:
         stride: 100
     backend_options:
-      to_netcdf_kwargs:
-        engine: h5netcdf
+      compression_level: 9
 artifacts:
   - path: c3s-cica-atlas/era5/psl_era5_mon_194001-202512_v025-small.nc
     logical_name: c3s-cica-atlas/era5/psl_era5_mon_194001-202512_v025-small.nc
     max_size: 1048576
-    checksum: sha256:e224c069e51c998459ac5891a13a57f7651b40e9522b72aaa74a1a53478de94e
-    size: 295179
+    size: 284355
+    checksum: sha256:24255daae6cfc0a4409aafc3b9b5af3bf28d9739c5f19d666f6d133a8a6c9693
 validation:
   openable: true
   engine: netcdf

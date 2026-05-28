@@ -10,8 +10,11 @@ dependencies:
   - pooch
 
   # Reducers and source integrations
+  - aiohttp
   - h5netcdf
   - intake
+  - jinja2
+  - nco
   - xarray
 
   # Tests and linting

@@ -48,6 +48,30 @@ def validate_recipe(path: str | Path) -> Recipe:
     return load_recipe(path)
 
 
+def update_recipe_artifact_metadata(
+    recipe: str | Path | Recipe,
+    artifact_root: str | Path = "artifacts",
+) -> Recipe:
+    """Write artifact size and checksum fields from built artifacts back to a recipe."""
+    loaded = recipe if isinstance(recipe, Recipe) else load_recipe(recipe)
+    artifact_base = Path(artifact_root)
+
+    from mini_climate_data.registry import sha256
+
+    for artifact in loaded.artifacts:
+        artifact_path = artifact_base / artifact["path"]
+        if not artifact_path.exists():
+            raise FileNotFoundError(f"Missing artifact for {loaded.name}: {artifact_path}")
+        artifact["size"] = artifact_path.stat().st_size
+        artifact["checksum"] = f"sha256:{sha256(artifact_path)}"
+
+    loaded.path.write_text(
+        yaml.safe_dump(loaded.data, sort_keys=False),
+        encoding="utf-8",
+    )
+    return load_recipe(loaded.path)
+
+
 def validate_recipe_data(data: dict[str, Any]) -> None:
     jsonschema.validate(instance=data, schema=recipe_schema())
 

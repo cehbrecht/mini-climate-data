@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import click
 
-from mini_climate_data.recipes import iter_recipes, validate_recipe
+from mini_climate_data.recipes import iter_recipes, update_recipe_artifact_metadata, validate_recipe
 from mini_climate_data.reducers import build_recipe
 from mini_climate_data.registry import build_registry
 from mini_climate_data.validation import validate_artifacts
@@ -50,6 +50,21 @@ def validate(target: str, artifact_root: str) -> None:
     checked = validate_artifacts(target, artifact_root)
     for path in checked:
         click.echo(f"ok {path}")
+
+
+@main.command("update-checksums")
+@click.argument("recipe", type=click.Path(exists=True))
+@click.option(
+    "--artifact-root",
+    default="artifacts",
+    show_default=True,
+    type=click.Path(exists=True),
+)
+def update_checksums(recipe: str, artifact_root: str) -> None:
+    """Write built artifact sizes and checksums back to a recipe."""
+    updated = update_recipe_artifact_metadata(recipe, artifact_root)
+    for artifact in updated.artifacts:
+        click.echo(f"updated {artifact['path']} {artifact['checksum']}")
 
 
 @main.command("build-registry")
