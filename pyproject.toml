@@ -26,16 +26,21 @@ classifiers = [
 dependencies = [
   "click>=8.1",
   "jsonschema>=4.22",
-  "pooch>=1.8",
   "PyYAML>=6.0",
 ]
 
 [project.optional-dependencies]
+test = [
+  "pytest>=8.0",
+]
 dev = [
   "build>=1.2",
   "pytest>=8.0",
   "ruff>=0.8",
   "twine>=5.0",
+]
+fetch = [
+  "pooch>=1.8",
 ]
 netcdf = [
   "h5netcdf>=1.3",
@@ -43,6 +48,12 @@ netcdf = [
 ]
 intake = [
   "intake>=2.0",
+]
+all = [
+  "h5netcdf>=1.3",
+  "intake>=2.0",
+  "pooch>=1.8",
+  "xarray>=2024.3",
 ]
 
 [project.scripts]

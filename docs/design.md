@@ -8,6 +8,11 @@ The `data` branch is a disposable generated cache. It contains reduced artifacts
 
 Generated climate artifacts are deliberately excluded from the Python package. The package should contain code, recipe definitions, schemas, and lightweight metadata only. Consumers fetch data by logical name through `pooch`.
 
+The base installation should stay small and general-purpose. Reducers and source
+integrations that pull in heavier, compiled, or provider-specific dependencies belong
+behind optional extras. For example, `fetch` installs `pooch`, `netcdf` installs the
+Python NetCDF stack used by `xarray_subset`, and `intake` installs catalog support.
+
 ## Purpose
 
 This project is intended to replace ad hoc climate test-data copies with a small,

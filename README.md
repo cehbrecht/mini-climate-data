@@ -1,43 +1,50 @@
 # mini-climate-data
 
+[![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue)](https://www.python.org/)
+[![CI](https://github.com/macpingu/mini-climate-data/actions/workflows/ci.yml/badge.svg)](https://github.com/macpingu/mini-climate-data/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
+[![Status](https://img.shields.io/badge/status-pre--alpha-orange)](docs/design.md)
+[![Code style: Ruff](https://img.shields.io/badge/code%20style-ruff-46a7f5)](https://docs.astral.sh/ruff/)
+[![Dependencies](https://img.shields.io/badge/dependencies-optional-lightgrey)](pyproject.toml)
+
 Reproducible recipes and tiny generated climate datasets for tests, examples, and CI.
 
-`mini-climate-data` is designed to replace ad hoc reduced climate files with a traceable workflow:
+`mini-climate-data` helps replace ad hoc climate test files with small,
+traceable artifacts. Recipes describe where source data came from, which packaged
+reducer builds the tiny artifact, and how the result should be validated.
 
-- `main` contains package code, recipes, reducers, validation, tests, and docs.
-- `data` is a disposable generated branch for reduced artifacts and a `pooch` registry.
-- Python packages never include generated data artifacts.
-- Every artifact is traceable to a recipe and reducer.
-- Users add recipes; supported reduction code lives in the `mini_climate_data` package.
+The package is intentionally lightweight by default. Heavier reducer and catalog
+dependencies are optional.
 
 ## Status
 
-This repository is in early scaffold form. The first implementation provides a package layout, recipe schema, CLI, validation helpers, registry generation, and tests that enforce the package/data split.
+Early scaffold. The API, recipe format, and data publishing workflow may still change.
 
-## Usage
+## Get Started
 
 ```console
+python -m pip install .
 mcd list
 mcd build recipes/example/hello-climate.yml
 mcd validate recipes/example/hello-climate.yml
-mcd build-registry
 ```
 
-Downstream packages will fetch generated artifacts by stable logical name:
+Generated artifacts are fetched by stable logical name:
 
 ```python
-from mini_climate_data import fetch
+import mini_climate_data as mcd
 
-path = fetch("cmip6/tas-small.nc")
+path = mcd.fetch("cmip6/tas-small.nc")
 ```
-
-See [docs/design.md](docs/design.md) for the branch and recipe model.
 
 ## Development
 
 ```console
+conda env create -f environment.yml
+conda activate mini-climate-data
 make dev
 make test
-make lint
-make format
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development details and
+[docs/design.md](docs/design.md) for the current prototype notes.

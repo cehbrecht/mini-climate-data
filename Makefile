@@ -7,7 +7,7 @@ install:
 	$(PIP) install .
 
 dev:
-	$(PIP) install -e ".[dev]"
+	$(PIP) install -e ".[dev,all]"
 
 test:
 	$(PYTHON) -m pytest
