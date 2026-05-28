@@ -18,7 +18,8 @@ def test_cica_atlas_era5_recipe_is_valid() -> None:
     assert recipe.name == "c3s-cica-atlas/era5-psl"
     assert recipe.data["source"]["entry"] == "c3s-cica-atlas"
     assert recipe.data["source"]["ds_id"] == "c3s-cica-atlas.psl.ERA5.mon.v25"
-    assert recipe.artifacts[0]["logical_name"].endswith("psl_ERA5_mon_194001-202512_v025-small.nc")
+    assert recipe.artifacts[0]["logical_name"].endswith("psl_era5_mon_194001-202512_v025-small.nc")
+    assert recipe.artifacts[0]["checksum"].startswith("sha256:")
 
 
 def test_iter_recipes_finds_example_recipe() -> None:

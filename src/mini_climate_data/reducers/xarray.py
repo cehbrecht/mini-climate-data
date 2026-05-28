@@ -47,6 +47,7 @@ class XarraySubsetReducer(Reducer):
 
             with xr.open_dataset(input_path, **open_kwargs) as dataset:
                 subset = _subset_dataset(dataset, spec.variables, spec.dimensions, spec.coordinates)
+                _normalize_missing_value_encoding(subset)
                 subset.to_netcdf(target, **write_kwargs)
             written.append(target)
 
@@ -79,6 +80,18 @@ def _isel_indexers(dimensions: list[DimensionSubset]) -> dict[str, Any]:
         else:
             indexers[dimension.name] = slice(dimension.start, dimension.stop, dimension.stride)
     return indexers
+
+
+def _normalize_missing_value_encoding(dataset: Any) -> None:
+    variables = getattr(dataset, "variables", {})
+    if not hasattr(variables, "values"):
+        return
+
+    for variable in variables.values():
+        encoding = getattr(variable, "encoding", {})
+        if "_FillValue" in encoding and "missing_value" in encoding:
+            if encoding["_FillValue"] != encoding["missing_value"]:
+                encoding.pop("missing_value")
 
 
 xarray_subset = XarraySubsetReducer()

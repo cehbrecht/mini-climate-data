@@ -13,7 +13,7 @@ def test_reduce_validate_and_build_registry(tmp_path: Path) -> None:
 
     build_recipe(recipe, artifact_root)
     checked = validate_artifacts(recipe, artifact_root)
-    registry = build_registry("recipes", artifact_root)
+    registry = build_registry("recipes/example", artifact_root)
 
     assert checked == [artifact_root / "example/hello-climate.txt"]
     assert registry["example/hello-climate.txt"].startswith("sha256:")
