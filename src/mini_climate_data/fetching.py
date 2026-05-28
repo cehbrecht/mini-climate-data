@@ -19,9 +19,7 @@ def fetch(
     try:
         import pooch
     except ImportError as exc:
-        raise RuntimeError(
-            "Install pooch or mini-climate-data with its runtime dependencies to fetch data"
-        ) from exc
+        raise RuntimeError("Install mini-climate-data[fetch] to fetch data") from exc
 
     version = version or os.environ.get("MINI_CLIMATE_DATA_VERSION", DEFAULT_VERSION)
     base = base_url or os.environ.get("MINI_CLIMATE_DATA_BASE_URL", DEFAULT_BASE_URL)

@@ -26,7 +26,6 @@ classifiers = [
 dependencies = [
   "click>=8.1",
   "jsonschema>=4.22",
-  "pooch>=1.8",
   "PyYAML>=6.0",
 ]
 
@@ -37,12 +36,21 @@ dev = [
   "ruff>=0.8",
   "twine>=5.0",
 ]
+fetch = [
+  "pooch>=1.8",
+]
 netcdf = [
   "h5netcdf>=1.3",
   "xarray>=2024.3",
 ]
 intake = [
   "intake>=2.0",
+]
+all = [
+  "h5netcdf>=1.3",
+  "intake>=2.0",
+  "pooch>=1.8",
+  "xarray>=2024.3",
 ]
 
 [project.scripts]

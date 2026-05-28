@@ -33,9 +33,28 @@ path = fetch("cmip6/tas-small.nc")
 
 See [docs/design.md](docs/design.md) for the branch and recipe model.
 
+## Installation
+
+The base install keeps heavy climate and catalog libraries optional:
+
+```console
+python -m pip install .
+```
+
+Install extras only for the features you need:
+
+```console
+python -m pip install ".[fetch]"          # fetch published artifacts with pooch
+python -m pip install ".[netcdf]"         # xarray/h5netcdf NetCDF reducers
+python -m pip install ".[intake]"         # intake catalog sources
+python -m pip install ".[all]"            # all optional runtime integrations
+```
+
 ## Development
 
 ```console
+conda env create -f environment.yml
+conda activate mini-climate-data
 make dev
 make test
 make lint
