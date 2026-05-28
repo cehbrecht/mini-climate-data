@@ -80,4 +80,5 @@ def _isel_indexers(dimensions: list[DimensionSubset]) -> dict[str, Any]:
             indexers[dimension.name] = slice(dimension.start, dimension.stop, dimension.stride)
     return indexers
 
+
 xarray_subset = XarraySubsetReducer()
