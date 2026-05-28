@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from mini_climate_data import sources
 from mini_climate_data.recipes import validate_recipe_data
 from mini_climate_data.sources import (
     load_catalog_aliases,
     load_source_spec,
+    read_intake_csv_manifest,
     resolve_catalog_url,
     select_table_url,
 )
@@ -84,6 +86,48 @@ def test_url_param_can_select_non_default_column() -> None:
         select_table_url(table, ds_id="cica-atlas-v025", url_param="download_url")
         == "https://example.test/cica-atlas-v025.nc"
     )
+
+
+def test_read_intake_csv_manifest_fallback(monkeypatch) -> None:
+    catalog = """
+sources:
+  c3s-cica-atlas:
+    args:
+      urlpath: '{{ CATALOG_DIR }}/c3s-atlas/catalog.csv'
+      csv_kwargs: {}
+"""
+    manifest = "ds_id,url\nc3s-cica-atlas.psl.ERA5.mon.v25,https://example.test/psl.nc\n"
+
+    class Response:
+        def __init__(self, payload: bytes) -> None:
+            self.payload = payload
+
+        def read(self) -> bytes:
+            return self.payload
+
+    def fake_urlopen(url: str) -> Response:
+        if url.endswith("c3s.yaml"):
+            return Response(catalog.encode("utf-8"))
+        if url.endswith("catalog.csv"):
+            return Response(manifest.encode("utf-8"))
+        raise AssertionError(url)
+
+    monkeypatch.setattr(sources, "urlopen", fake_urlopen)
+
+    table = read_intake_csv_manifest(
+        {
+            "kind": "intake",
+            "catalog_url": "https://example.test/intake/catalogs/c3s.yaml",
+            "entry": "c3s-cica-atlas",
+        }
+    )
+
+    assert table == [
+        {
+            "ds_id": "c3s-cica-atlas.psl.ERA5.mon.v25",
+            "url": "https://example.test/psl.nc",
+        }
+    ]
 
 
 def test_direct_url_source_shape_is_valid() -> None:

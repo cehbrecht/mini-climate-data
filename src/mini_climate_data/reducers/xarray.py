@@ -29,7 +29,12 @@ class XarraySubsetReducer(Reducer):
 
         config = parameters(recipe)
         backend = backend_options(config, "xarray")
-        input_paths = resolve_input_paths(recipe, config, reducer_name=self.name)
+        input_paths = resolve_input_paths(
+            recipe,
+            config,
+            reducer_name=self.name,
+            cache_root=artifact_root / "_sources",
+        )
         require_matching_artifacts(recipe, input_paths, reducer_name=self.name)
 
         written: list[Path] = []

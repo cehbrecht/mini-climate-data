@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import csv
+import gzip
 from dataclasses import dataclass
 from importlib import resources
+from io import StringIO
 from pathlib import Path
 from typing import Any
+from urllib.parse import urljoin
+from urllib.request import urlopen
 
 import yaml
 
@@ -85,13 +90,40 @@ def resolve_intake_url(source: SourceSpec | dict[str, Any]) -> str:
         raise ValueError("Intake URL resolution requires source.ds_id")
 
     table_source = open_intake_source(data)
-    table = table_source.read()
+    try:
+        table = table_source.read()
+    except TypeError as exc:
+        if "csv_kwargs" not in str(exc):
+            raise
+        table = read_intake_csv_manifest(data)
     return select_table_url(
         table,
         ds_id=data["ds_id"],
         ds_id_column=data.get("ds_id_column", "ds_id"),
         url_param=data.get("url_param", data.get("url_column", "url")),
     )
+
+
+def read_intake_csv_manifest(source: SourceSpec | dict[str, Any]) -> list[dict[str, str]]:
+    """Read an intake CSV manifest directly when intake's CSV driver is incompatible."""
+    data = source.data if isinstance(source, SourceSpec) else source
+    catalog_url = resolve_catalog_url(data)
+    catalog = yaml.safe_load(_read_url_text(catalog_url))
+    entry = catalog["sources"][data["entry"]]
+    catalog_dir = catalog_url.rsplit("/", 1)[0]
+    urlpath = str(entry["args"]["urlpath"]).replace("{{ CATALOG_DIR }}", catalog_dir)
+    urlpath = urljoin(catalog_url, urlpath)
+
+    payload = urlopen(urlpath).read()
+    compression = entry["args"].get("csv_kwargs", {}).get("compression")
+    if compression == "gzip" or urlpath.endswith(".gz"):
+        payload = gzip.decompress(payload)
+
+    return list(csv.DictReader(StringIO(payload.decode("utf-8"))))
+
+
+def _read_url_text(url: str) -> str:
+    return urlopen(url).read().decode("utf-8")
 
 
 def select_table_url(
