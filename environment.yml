@@ -2,5 +2,22 @@ name: mini-climate-data
 channels:
   - conda-forge
 dependencies:
+  # Runtime
   - python>=3.10
   - pip
+
+  # Fetching
+  - pooch
+
+  # Reducers and source integrations
+  - h5netcdf
+  - intake
+  - xarray
+
+  # Tests and linting
+  - pytest
+  - ruff
+
+  # Packaging
+  - python-build
+  - twine

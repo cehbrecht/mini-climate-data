@@ -52,6 +52,9 @@ python -m pip install ".[all]"            # all optional runtime integrations
 
 ## Development
 
+The conda environment installs the heavier local-development stack from conda-forge.
+`make dev` then installs this package in editable mode.
+
 ```console
 conda env create -f environment.yml
 conda activate mini-climate-data
