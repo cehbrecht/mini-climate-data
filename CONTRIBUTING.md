@@ -7,6 +7,21 @@ while recipes, reducers, validation, tests, and docs are the durable source of t
 
 ## Setup
 
+The base package install stays small:
+
+```console
+python -m pip install .
+```
+
+Install optional runtime groups only when needed:
+
+```console
+python -m pip install ".[fetch]"          # fetch published artifacts with pooch
+python -m pip install ".[netcdf]"         # xarray/h5netcdf NetCDF reducers
+python -m pip install ".[intake]"         # intake catalog sources
+python -m pip install ".[all]"            # all optional runtime integrations
+```
+
 For local development with the full optional stack:
 
 ```console
@@ -59,4 +74,3 @@ only.
 
 Update `README.md`, `docs/design.md`, and `CHANGES.md` when a change affects user
 workflow, recipe format, reducer behavior, dependency groups, or publishing rules.
-
