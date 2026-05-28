@@ -1,0 +1,31 @@
+name: c3s-cica-atlas/era5-psl
+summary: A tiny monthly sea-level pressure subset from the C3S Atlas ERA5 v2.5 dataset.
+source:
+  kind: intake
+  description: Copernicus Interactive Climate Atlas v2.5 ERA5 monthly sea-level pressure.
+  license: CC-BY-4.0
+  citation: "Copernicus Climate Change Service: Gridded dataset underpinning the Copernicus Interactive Climate Atlas, DOI: 10.24381/cds.h35hb680"
+  catalog: c3s
+  entry: c3s-cica-atlas
+  ds_id: c3s-cica-atlas.psl.ERA5.mon.v25
+  url_param: url
+reducer:
+  name: xarray_subset
+  parameters:
+    variables: [psl]
+    dimensions:
+      lat:
+        stride: 100
+      lon:
+        stride: 100
+    backend_options:
+      to_netcdf_kwargs:
+        engine: h5netcdf
+artifacts:
+  - path: c3s-cica-atlas/ERA5/psl_ERA5_mon_194001-202512_v025-small.nc
+    logical_name: c3s-cica-atlas/ERA5/psl_ERA5_mon_194001-202512_v025-small.nc
+    max_size: 1048576
+validation:
+  openable: true
+  engine: netcdf
+  required_variables: [psl]

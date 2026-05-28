@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import glob
+import hashlib
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
+from urllib.request import urlopen
 
 from mini_climate_data.recipes import Recipe
+from mini_climate_data.sources import resolve_intake_url
 
 
 @dataclass(frozen=True)
@@ -47,14 +52,15 @@ def resolve_input_paths(
     config: dict[str, Any],
     *,
     reducer_name: str,
+    cache_root: Path | None = None,
 ) -> list[Path]:
     if "input_glob" in config:
         paths = sorted(Path(path) for path in glob.glob(str(config["input_glob"])))
     else:
-        value = config.get("input") or recipe.data["source"].get("url")
+        value = config.get("input") or _source_url(recipe)
         if not value:
             raise ValueError(f"{reducer_name} requires reducer.parameters.input or source.url")
-        paths = [Path(strip_file_url(str(value)))]
+        paths = [_local_input_path(str(value), cache_root, reducer_name=reducer_name)]
 
     if not paths:
         raise FileNotFoundError(f"{reducer_name} input_glob did not match any files")
@@ -69,6 +75,41 @@ def resolve_input_paths(
         paths = paths[: int(number)]
 
     return paths
+
+
+def _source_url(recipe: Recipe) -> str | None:
+    source = recipe.data["source"]
+    if source["kind"] == "intake":
+        return resolve_intake_url(source)
+    return source.get("url")
+
+
+def _local_input_path(value: str, cache_root: Path | None, *, reducer_name: str) -> Path:
+    if is_remote_url(value):
+        if cache_root is None:
+            raise ValueError(f"{reducer_name} requires a cache root to download remote inputs")
+        return download_source(value, cache_root)
+    return Path(strip_file_url(value))
+
+
+def is_remote_url(value: str) -> bool:
+    scheme = urlparse(value).scheme
+    return scheme in {"http", "https"}
+
+
+def download_source(url: str, cache_root: Path) -> Path:
+    """Download a remote original file into a deterministic local source cache."""
+    cache_root.mkdir(parents=True, exist_ok=True)
+    parsed = urlparse(url)
+    filename = Path(parsed.path).name or "source"
+    digest = hashlib.sha256(url.encode("utf-8")).hexdigest()[:12]
+    target = cache_root / f"{digest}-{filename}"
+    if target.is_file():
+        return target
+
+    with urlopen(url) as response, target.open("wb") as output:
+        shutil.copyfileobj(response, output)
+    return target
 
 
 def strip_file_url(value: str) -> str:
