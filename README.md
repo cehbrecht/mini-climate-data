@@ -32,9 +32,9 @@ mcd validate recipes/example/hello-climate.yml
 Generated artifacts are fetched by stable logical name:
 
 ```python
-from mini_climate_data import fetch
+import mini_climate_data as mcd
 
-path = fetch("cmip6/tas-small.nc")
+path = mcd.fetch("cmip6/tas-small.nc")
 ```
 
 ## Development
