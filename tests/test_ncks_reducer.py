@@ -73,9 +73,7 @@ validation:
     ]
 
 
-def test_ncks_subset_matches_input_glob_to_declared_artifacts(
-    tmp_path: Path, monkeypatch
-) -> None:
+def test_ncks_subset_matches_input_glob_to_declared_artifacts(tmp_path: Path, monkeypatch) -> None:
     first = tmp_path / "a.nc"
     second = tmp_path / "b.nc"
     first.write_bytes(b"a")
