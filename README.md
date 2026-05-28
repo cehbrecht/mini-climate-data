@@ -1,5 +1,11 @@
 # mini-climate-data
 
+[![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
+[![Status](https://img.shields.io/badge/status-pre--alpha-orange)](docs/design.md)
+[![Code style: Ruff](https://img.shields.io/badge/code%20style-ruff-46a7f5)](https://docs.astral.sh/ruff/)
+[![Dependencies](https://img.shields.io/badge/dependencies-optional-lightgrey)](pyproject.toml)
+
 Reproducible recipes and tiny generated climate datasets for tests, examples, and CI.
 
 `mini-climate-data` is designed to replace ad hoc reduced climate files with a traceable workflow:
