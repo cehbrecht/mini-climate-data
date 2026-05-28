@@ -1,6 +1,7 @@
 # mini-climate-data
 
 [![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue)](https://www.python.org/)
+[![CI](https://github.com/macpingu/mini-climate-data/actions/workflows/ci.yml/badge.svg)](https://github.com/macpingu/mini-climate-data/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 [![Status](https://img.shields.io/badge/status-pre--alpha-orange)](docs/design.md)
 [![Code style: Ruff](https://img.shields.io/badge/code%20style-ruff-46a7f5)](https://docs.astral.sh/ruff/)
