@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import rmtree
+
+from git import Repo
 
 from mini_climate_data.recipes import iter_recipes
 from mini_climate_data.reducers import build_recipe
@@ -27,16 +28,14 @@ class DataStoreConfig:
         return self.worktree / REGISTRY_NAME
 
 
-def run_git(args: list[str], cwd: str | Path = ".") -> str:
-    """Run a git command and return stdout."""
-    result = subprocess.run(
-        ["git", *args],
-        cwd=cwd,
-        check=True,
-        text=True,
-        capture_output=True,
-    )
-    return result.stdout.strip()
+def source_repo(path: str | Path = ".") -> Repo:
+    """Return the source repository for the current project."""
+    return Repo(path, search_parent_directories=True)
+
+
+def data_repo(config: DataStoreConfig) -> Repo:
+    """Return the git repository for an existing data worktree."""
+    return Repo(config.worktree)
 
 
 def init_data_worktree(config: DataStoreConfig, *, orphan: bool = False) -> Path:
@@ -45,10 +44,11 @@ def init_data_worktree(config: DataStoreConfig, *, orphan: bool = False) -> Path
         return config.worktree
 
     config.worktree.parent.mkdir(parents=True, exist_ok=True)
+    repo = source_repo()
     if orphan:
-        run_git(["worktree", "add", "--orphan", "-b", config.branch, str(config.worktree)])
+        repo.git.worktree("add", "--orphan", "-b", config.branch, str(config.worktree))
     else:
-        run_git(["worktree", "add", str(config.worktree), config.branch])
+        repo.git.worktree("add", str(config.worktree), config.branch)
     return config.worktree
 
 
@@ -111,12 +111,13 @@ def _prune_empty_dirs(root: Path) -> None:
 
 def data_status(config: DataStoreConfig) -> str:
     """Return porcelain status for the data worktree."""
-    return run_git(["status", "--short"], cwd=config.worktree)
+    return data_repo(config).git.status("--short")
 
 
 def publish_data(config: DataStoreConfig, *, message: str, remote: str = "origin") -> None:
     """Commit and push generated data from the data worktree."""
-    run_git(["add", "."], cwd=config.worktree)
-    if data_status(config):
-        run_git(["commit", "-m", message], cwd=config.worktree)
-    run_git(["push", remote, f"HEAD:{config.branch}"], cwd=config.worktree)
+    repo = data_repo(config)
+    repo.git.add("--all")
+    if repo.is_dirty(index=True, working_tree=True, untracked_files=True):
+        repo.index.commit(message)
+    repo.remote(remote).push(refspec=f"HEAD:{config.branch}")

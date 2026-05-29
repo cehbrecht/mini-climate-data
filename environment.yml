@@ -5,6 +5,10 @@ dependencies:
   # Runtime
   - python>=3.10
   - pip
+  - click
+  - gitpython
+  - jsonschema
+  - pyyaml
 
   # Fetching
   - pooch

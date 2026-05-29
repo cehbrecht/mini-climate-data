@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from click.testing import CliRunner
+from git import Repo
 
 from mini_climate_data.cli import main
 from mini_climate_data.data_store import (
@@ -11,6 +12,7 @@ from mini_climate_data.data_store import (
     DataStoreConfig,
     build_all_data,
     clean_data,
+    init_data_worktree,
     validate_data,
     write_data_registry,
 )
@@ -45,6 +47,27 @@ def test_build_validate_and_registry_for_data_worktree(tmp_path: Path) -> None:
     assert tmp_path / "data/example/hello-climate.txt" in removed
     assert tmp_path / "data/registry.json" in removed
     assert not (tmp_path / "data/example/hello-climate.txt").exists()
+
+
+def test_init_data_worktree_uses_gitpython(tmp_path: Path, monkeypatch) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    repo = Repo.init(source)
+    with repo.config_writer() as config:
+        config.set_value("user", "email", "test@example.test")
+        config.set_value("user", "name", "Test User")
+    (source / "README.md").write_text("source\n", encoding="utf-8")
+    repo.index.add(["README.md"])
+    repo.index.commit("Initial commit")
+    repo.create_head("data")
+    monkeypatch.chdir(source)
+
+    worktree = init_data_worktree(
+        DataStoreConfig(branch="data", worktree=tmp_path / "data-worktree")
+    )
+
+    assert worktree == tmp_path / "data-worktree"
+    assert Repo(worktree).active_branch.name == "data"
 
 
 def test_data_cli_build_validate_and_registry(tmp_path: Path) -> None:
