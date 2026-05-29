@@ -1,3 +1,4 @@
 {
+  "c3s-cica-atlas/era5/psl_era5_mon_194001-202512_v025-small.nc": "sha256:fbada1801e4b74a0a300ffe42482dde668a5f15c76e9edc62fe554154b83e273",
   "example/hello-climate.txt": "sha256:b566d16e7b6a72b1766df1b841e6a7c369ea67a2e57584cc3f9d65bab45b34cb"
 }
