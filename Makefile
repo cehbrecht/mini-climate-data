@@ -1,10 +1,28 @@
-.PHONY: install dev test lint format build clean data-init data-build data-validate data-registry data-clean data-status data-publish
+.PHONY: help install dev test lint format build clean data-init data-build data-validate data-registry data-clean data-status data-publish
 
 PYTHON ?= python
 PIP ?= $(PYTHON) -m pip
 DATA_BRANCH ?= data
 DATA_WORKTREE ?= .worktrees/data
 DATA_RECIPES ?= recipes
+
+help:
+	@printf "Available targets:\n"
+	@printf "  install        Install the package\n"
+	@printf "  dev            Install editable development dependencies\n"
+	@printf "  test           Run the test suite\n"
+	@printf "  lint           Run ruff checks\n"
+	@printf "  format         Format and fix lint issues\n"
+	@printf "  build          Build package artifacts\n"
+	@printf "  clean          Remove local build/test caches\n"
+	@printf "  data-init      Create or reuse the data worktree\n"
+	@printf "  data-build     Build all recipes into the data worktree\n"
+	@printf "  data-validate  Validate data worktree artifacts\n"
+	@printf "  data-registry  Write registry.json in the data worktree\n"
+	@printf "  data-clean     Remove declared generated data files\n"
+	@printf "  data-status    Show data worktree git status\n"
+	@printf "  data-publish   Commit and push generated data\n"
+	@printf "\nData variables: DATA_BRANCH=%s DATA_WORKTREE=%s DATA_RECIPES=%s\n" "$(DATA_BRANCH)" "$(DATA_WORKTREE)" "$(DATA_RECIPES)"
 
 install:
 	$(PIP) install .
