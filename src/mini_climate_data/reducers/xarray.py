@@ -33,7 +33,7 @@ class XarraySubsetReducer(Reducer):
             recipe,
             config,
             reducer_name=self.name,
-            cache_root=artifact_root / "_sources",
+            cache_root=Path(config.get("source_cache", artifact_root / "_sources")),
         )
         require_matching_artifacts(recipe, input_paths, reducer_name=self.name)
 

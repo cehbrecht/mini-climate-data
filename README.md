@@ -37,6 +37,22 @@ import mini_climate_data as mcd
 path = mcd.fetch("cmip6/tas-small.nc")
 ```
 
+Generated data is kept on a git branch named `data` by default. Maintainers can build
+and publish it locally from a separate worktree:
+
+```console
+mcd data init
+mcd data build-all --recipes recipes/example
+mcd data validate --recipes recipes/example
+mcd data registry --recipes recipes/example
+mcd data publish
+```
+
+Use `--branch` and `--worktree` to target a test or snapshot data branch. For a clean
+local rebuild, run `mcd data clean --yes` before rebuilding. Remote original source
+files are cached with `pooch`; data-store builds keep that cache outside the data
+worktree by default at `.cache/mini-climate-data/sources`.
+
 ## Development
 
 ```console

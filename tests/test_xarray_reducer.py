@@ -150,20 +150,10 @@ def test_xarray_subset_caches_remote_intake_source(tmp_path: Path, monkeypatch) 
         opened.append(path)
         return FakeDataset(path)
 
-    class FakeResponse:
-        def __init__(self) -> None:
-            self.remaining = b"netcdf"
-
-        def __enter__(self) -> FakeResponse:
-            return self
-
-        def __exit__(self, *args: object) -> None:
-            return None
-
-        def read(self, size: int = -1) -> bytes:
-            chunk = self.remaining
-            self.remaining = b""
-            return chunk
+    def retrieve(url: str, *, known_hash: str | None, fname: str, path: Path, progressbar: bool):
+        target = path / fname
+        target.write_bytes(b"netcdf")
+        return str(target)
 
     monkeypatch.setitem(sys.modules, "xarray", SimpleNamespace(open_dataset=open_dataset))
     monkeypatch.setattr(
@@ -171,7 +161,7 @@ def test_xarray_subset_caches_remote_intake_source(tmp_path: Path, monkeypatch) 
         "resolve_intake_url",
         lambda source: "https://example.test/data/psl_ERA5_mon_194001-202512_v025.nc",
     )
-    monkeypatch.setattr(helpers, "urlopen", lambda url: FakeResponse())
+    monkeypatch.setitem(sys.modules, "pooch", SimpleNamespace(retrieve=retrieve))
     recipe = Recipe(
         path=tmp_path / "recipe.yml",
         data={
