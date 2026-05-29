@@ -7,10 +7,7 @@ from typing import Any
 
 import yaml
 
-from mini_climate_data import config
 from mini_climate_data.recipes import iter_recipes
-
-REGISTRY_NAME = config.REGISTRY_NAME
 
 
 def sha256(path: Path) -> str:
