@@ -53,7 +53,7 @@ def _run_ncks(
     dimensions: list[DimensionSubset],
     backend: dict[str, Any],
 ) -> None:
-    command = [str(backend.get("command", backend.get("ncks_command", "ncks")))]
+    command = [str(backend.get("command", backend.get("ncks_command", "ncks"))), "-h"]
 
     if backend.get("netcdf4_classic", False):
         command.append("-7")

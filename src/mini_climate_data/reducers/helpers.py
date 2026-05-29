@@ -112,7 +112,7 @@ def download_source(url: str, cache_root: Path) -> Path:
             known_hash=None,
             fname=f"{digest}-{filename}",
             path=cache_root,
-            progressbar=True,
+            progressbar=False,
         )
     )
 
