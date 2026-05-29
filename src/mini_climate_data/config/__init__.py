@@ -68,6 +68,61 @@ REGISTRY_NAME = str(CONFIG["registry"]["name"])
 
 
 @dataclass(frozen=True)
+class Settings:
+    """Resolved package settings loaded from TOML."""
+
+    data: dict[str, Any]
+
+    @classmethod
+    def load(cls, path: str | Path | None = None) -> Settings:
+        return cls(load_config(path))
+
+    @property
+    def data_branch(self) -> str:
+        return str(self.data["data_store"]["branch"])
+
+    @property
+    def data_worktree(self) -> str:
+        return str(self.data["data_store"]["worktree"])
+
+    @property
+    def recipe_root(self) -> str:
+        return str(self.data["data_store"]["recipe_root"])
+
+    @property
+    def source_cache(self) -> str:
+        return str(self.data["data_store"]["source_cache"])
+
+    @property
+    def registry_name(self) -> str:
+        return str(self.data["registry"]["name"])
+
+    @property
+    def fetch_base_url(self) -> str:
+        return str(self.data["fetch"]["base_url"])
+
+    @property
+    def fetch_version(self) -> str:
+        return str(self.data["fetch"].get("version", self.data_branch))
+
+    def data_store_config(
+        self,
+        *,
+        branch: str | None = None,
+        worktree: str | Path | None = None,
+        recipe_root: str | Path | None = None,
+        source_cache: str | Path | None = None,
+    ) -> DataStoreConfig:
+        return DataStoreConfig(
+            branch=branch or self.data_branch,
+            worktree=Path(worktree or self.data_worktree),
+            recipe_root=Path(recipe_root or self.recipe_root),
+            source_cache=Path(source_cache or self.source_cache),
+            registry_name=self.registry_name,
+        )
+
+
+@dataclass(frozen=True)
 class DataStoreConfig:
     """Local git-backed generated data store settings."""
 
@@ -75,10 +130,11 @@ class DataStoreConfig:
     worktree: Path = Path(DEFAULT_DATA_WORKTREE)
     recipe_root: Path = Path(DEFAULT_RECIPE_ROOT)
     source_cache: Path = Path(DEFAULT_SOURCE_CACHE)
+    registry_name: str = REGISTRY_NAME
 
     @property
     def registry_path(self) -> Path:
-        return self.worktree / REGISTRY_NAME
+        return self.worktree / self.registry_name
 
 
 def configured_base_url(base_url: str | None = None) -> str:

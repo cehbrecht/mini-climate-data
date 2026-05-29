@@ -159,3 +159,33 @@ def test_data_cli_build_validate_and_registry(tmp_path: Path) -> None:
     assert "ok" in validate_result.output
     assert registry_result.exit_code == 0
     assert "registry.json" in registry_result.output
+
+
+def test_data_cli_uses_config_file_defaults(tmp_path: Path) -> None:
+    runner = CliRunner()
+    worktree = tmp_path / "configured-data"
+    source_cache = tmp_path / "configured-sources"
+    config_path = tmp_path / "mcd.toml"
+    config_path.write_text(
+        f"""
+[data_store]
+branch = "data-from-config"
+worktree = "{worktree}"
+recipe_root = "recipes/example"
+source_cache = "{source_cache}"
+
+[registry]
+name = "configured-registry.json"
+""",
+        encoding="utf-8",
+    )
+
+    build_result = runner.invoke(main, ["--config", str(config_path), "data", "build-all"])
+    registry_result = runner.invoke(main, ["--config", str(config_path), "data", "registry"])
+
+    assert build_result.exit_code == 0
+    assert "wrote" in build_result.output
+    assert registry_result.exit_code == 0
+    assert f"{worktree}/configured-registry.json" in registry_result.output
+    assert (worktree / "example/hello-climate.txt").exists()
+    assert (worktree / "configured-registry.json").exists()

@@ -55,7 +55,12 @@ worktree by default at `.cache/mini-climate-data/sources`.
 
 Defaults are stored in the packaged `mini_climate_data/config/defaults.toml`. To
 override them locally, create `mini-climate-data.toml` in the repository root or point
-`MINI_CLIMATE_DATA_CONFIG` at a TOML file:
+`MINI_CLIMATE_DATA_CONFIG` at a TOML file. For one command, pass `--config` before the
+subcommand:
+
+```console
+mcd --config data-test.toml data build-all
+```
 
 ```toml
 [data_store]
