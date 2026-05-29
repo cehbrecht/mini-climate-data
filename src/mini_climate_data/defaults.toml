@@ -1,0 +1,12 @@
+[data_store]
+branch = "data"
+worktree = ".worktrees/data"
+recipe_root = "recipes"
+source_cache = ".cache/mini-climate-data/sources"
+
+[fetch]
+base_url = "https://raw.githubusercontent.com/macpingu/mini-climate-data/"
+version = "data"
+
+[registry]
+name = "registry.json"

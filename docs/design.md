@@ -215,6 +215,12 @@ them. For data-store builds, the default source cache is
 so original large files are not committed to the `data` branch. Use `--source-cache`
 or the Make `SOURCE_CACHE` variable to put this cache on a larger local disk.
 
+Packaged defaults live in `src/mini_climate_data/defaults.toml`. A maintainer can
+override them with a repository-local `mini-climate-data.toml` or by setting
+`MINI_CLIMATE_DATA_CONFIG` to another TOML file. Command-line options still take
+precedence for one-off runs, and fetch URL/version environment variables remain
+available for downstream consumers.
+
 This keeps incremental local builds cheap: rebuild the recipe whose source or reducer
 changed, regenerate `registry.json`, validate, then commit and push from the data
 worktree. For a clean local rebuild, run `mcd data clean --yes` to remove declared

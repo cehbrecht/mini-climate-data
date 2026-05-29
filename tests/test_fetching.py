@@ -8,11 +8,13 @@ from mini_climate_data.config import (
     DEFAULT_BASE_URL,
     DEFAULT_DATA_BRANCH,
     ENV_BASE_URL,
+    ENV_CONFIG,
     ENV_DATA_VERSION,
     REGISTRY_NAME,
     config_value,
     configured_base_url,
     configured_data_version,
+    load_config,
 )
 from mini_climate_data.fetching import fetch, load_remote_registry, registry_url
 
@@ -55,6 +57,31 @@ def test_configured_fetch_settings_read_environment(monkeypatch) -> None:
 
 def test_config_value_returns_string_constant() -> None:
     assert config_value("DEFAULT_DATA_BRANCH") == DEFAULT_DATA_BRANCH
+
+
+def test_user_config_overrides_packaged_defaults(tmp_path, monkeypatch) -> None:
+    user_config = tmp_path / "mini-climate-data.toml"
+    user_config.write_text(
+        """
+[data_store]
+branch = "data-preview"
+
+[fetch]
+base_url = "https://example.test/data"
+
+[registry]
+name = "custom-registry.json"
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv(ENV_CONFIG, str(user_config))
+
+    config = load_config()
+
+    assert config["data_store"]["branch"] == "data-preview"
+    assert config["data_store"]["worktree"] == ".worktrees/data"
+    assert config["fetch"]["base_url"] == "https://example.test/data"
+    assert config["registry"]["name"] == "custom-registry.json"
 
 
 def test_fetch_loads_remote_registry_by_default(monkeypatch) -> None:
