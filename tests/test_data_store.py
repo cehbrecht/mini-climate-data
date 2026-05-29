@@ -77,6 +77,33 @@ def test_init_data_worktree_uses_gitpython(tmp_path: Path, monkeypatch) -> None:
     assert Repo(worktree).active_branch.name == "data"
 
 
+def test_init_external_data_store_clones_repo(tmp_path: Path) -> None:
+    remote = tmp_path / "remote"
+    remote.mkdir()
+    repo = Repo.init(remote)
+    with repo.config_writer() as config:
+        config.set_value("user", "email", "test@example.test")
+        config.set_value("user", "name", "Test User")
+    (remote / "README.md").write_text("external data\n", encoding="utf-8")
+    repo.index.add(["README.md"])
+    repo.index.commit("Initial commit")
+    repo.create_head("data")
+
+    worktree = tmp_path / "external-data"
+    initialized = init_data_worktree(
+        DataStoreConfig(
+            name="external",
+            repo=str(remote),
+            branch="data",
+            worktree=worktree,
+        )
+    )
+
+    assert initialized == worktree
+    assert Repo(worktree).active_branch.name == "data"
+    assert (worktree / "README.md").read_text(encoding="utf-8") == "external data\n"
+
+
 def test_data_build_injects_source_cache(tmp_path: Path, monkeypatch) -> None:
     seen_source_cache: list[str] = []
     recipe = Recipe(
@@ -189,3 +216,35 @@ name = "configured-registry.json"
     assert f"{worktree}/configured-registry.json" in registry_result.output
     assert (worktree / "example/hello-climate.txt").exists()
     assert (worktree / "configured-registry.json").exists()
+
+
+def test_data_cli_can_select_named_store(tmp_path: Path) -> None:
+    runner = CliRunner()
+    worktree = tmp_path / "atlas-data"
+    config_path = tmp_path / "stores.toml"
+    config_path.write_text(
+        f"""
+[stores.atlas]
+base_url = "https://example.test/atlas"
+branch = "atlas-data"
+worktree = "{worktree}"
+recipe_root = "recipes/example"
+source_cache = "{tmp_path / "atlas-sources"}"
+registry = "atlas-registry.json"
+""",
+        encoding="utf-8",
+    )
+
+    build_result = runner.invoke(
+        main,
+        ["--config", str(config_path), "data", "build-all", "--store", "atlas"],
+    )
+    registry_result = runner.invoke(
+        main,
+        ["--config", str(config_path), "data", "registry", "--store", "atlas"],
+    )
+
+    assert build_result.exit_code == 0
+    assert registry_result.exit_code == 0
+    assert (worktree / "example/hello-climate.txt").exists()
+    assert (worktree / "atlas-registry.json").exists()
