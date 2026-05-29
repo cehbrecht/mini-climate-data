@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from shutil import rmtree
 
-from git import Repo
+from git import GitCommandError, Repo
 
 from mini_climate_data.config import DataStoreConfig
 from mini_climate_data.recipes import Recipe, iter_recipes, load_recipe
@@ -28,12 +28,29 @@ def init_data_worktree(config: DataStoreConfig, *, orphan: bool = False) -> Path
         return config.worktree
 
     config.worktree.parent.mkdir(parents=True, exist_ok=True)
+    if config.repo:
+        _init_external_worktree(config, orphan=orphan)
+        return config.worktree
+
     repo = source_repo()
     if orphan:
         repo.git.worktree("add", "--orphan", "-b", config.branch, str(config.worktree))
     else:
         repo.git.worktree("add", str(config.worktree), config.branch)
     return config.worktree
+
+
+def _init_external_worktree(config: DataStoreConfig, *, orphan: bool = False) -> None:
+    if orphan:
+        repo = Repo.clone_from(config.repo, config.worktree)
+        repo.git.checkout("--orphan", config.branch)
+        try:
+            repo.git.rm("-rf", ".")
+        except GitCommandError:
+            pass
+        return
+
+    Repo.clone_from(config.repo, config.worktree, branch=config.branch)
 
 
 def build_data_recipe(recipe: str | Path, config: DataStoreConfig) -> list[Path]:

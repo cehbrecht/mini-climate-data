@@ -124,6 +124,7 @@ def data() -> None:
 
 def _data_config(
     ctx: click.Context,
+    store: str | None,
     branch: str | None,
     worktree: str | None,
     recipes: str | None = None,
@@ -131,6 +132,7 @@ def _data_config(
 ):
     settings: Settings = ctx.find_root().obj
     return settings.data_store_config(
+        store=store,
         branch=branch,
         worktree=worktree,
         recipe_root=recipes,
@@ -139,6 +141,7 @@ def _data_config(
 
 
 @data.command("init")
+@click.option("--store", default=None, help="Named data store.")
 @click.option("--branch", default=None, help="Data branch name.")
 @click.option("--worktree", default=None, type=click.Path(), help="Data branch worktree path.")
 @click.option(
@@ -147,15 +150,22 @@ def _data_config(
     help="Create a new orphan data branch if the branch does not exist yet.",
 )
 @click.pass_context
-def data_init(ctx: click.Context, branch: str | None, worktree: str | None, orphan: bool) -> None:
+def data_init(
+    ctx: click.Context,
+    store: str | None,
+    branch: str | None,
+    worktree: str | None,
+    orphan: bool,
+) -> None:
     """Create or reuse the local data branch worktree."""
-    config = _data_config(ctx, branch, worktree)
+    config = _data_config(ctx, store, branch, worktree)
     path = init_data_worktree(config, orphan=orphan)
     click.echo(f"data worktree ready at {path}")
 
 
 @data.command("build")
 @click.argument("recipe", type=click.Path(exists=True))
+@click.option("--store", default=None, help="Named data store.")
 @click.option("--branch", default=None, help="Data branch name.")
 @click.option("--worktree", default=None, type=click.Path(), help="Data branch worktree path.")
 @click.option("--source-cache", default=None, type=click.Path(), help="Original-source cache path.")
@@ -163,17 +173,19 @@ def data_init(ctx: click.Context, branch: str | None, worktree: str | None, orph
 def data_build(
     ctx: click.Context,
     recipe: str,
+    store: str | None,
     branch: str | None,
     worktree: str | None,
     source_cache: str | None,
 ) -> None:
     """Build one recipe into the data worktree."""
-    config = _data_config(ctx, branch, worktree, source_cache=source_cache)
+    config = _data_config(ctx, store, branch, worktree, source_cache=source_cache)
     for path in build_data_recipe(recipe, config):
         click.echo(f"wrote {path}")
 
 
 @data.command("build-all")
+@click.option("--store", default=None, help="Named data store.")
 @click.option("--branch", default=None, help="Data branch name.")
 @click.option("--worktree", default=None, type=click.Path(), help="Data branch worktree path.")
 @click.option("--source-cache", default=None, type=click.Path(), help="Original-source cache path.")
@@ -187,18 +199,20 @@ def data_build(
 @click.pass_context
 def data_build_all(
     ctx: click.Context,
+    store: str | None,
     branch: str | None,
     worktree: str | None,
     source_cache: str | None,
     recipe_root: str | None,
 ) -> None:
     """Build all recipes into the data worktree."""
-    config = _data_config(ctx, branch, worktree, recipe_root, source_cache)
+    config = _data_config(ctx, store, branch, worktree, recipe_root, source_cache)
     for path in build_all_data(config):
         click.echo(f"wrote {path}")
 
 
 @data.command("validate")
+@click.option("--store", default=None, help="Named data store.")
 @click.option("--branch", default=None, help="Data branch name.")
 @click.option("--worktree", default=None, type=click.Path(exists=True), help="Data worktree path.")
 @click.option(
@@ -211,17 +225,19 @@ def data_build_all(
 @click.pass_context
 def data_validate(
     ctx: click.Context,
+    store: str | None,
     branch: str | None,
     worktree: str | None,
     recipe_root: str | None,
 ) -> None:
     """Validate generated data in the data worktree."""
-    config = _data_config(ctx, branch, worktree, recipe_root)
+    config = _data_config(ctx, store, branch, worktree, recipe_root)
     for path in validate_data(config):
         click.echo(f"ok {path}")
 
 
 @data.command("registry")
+@click.option("--store", default=None, help="Named data store.")
 @click.option("--branch", default=None, help="Data branch name.")
 @click.option("--worktree", default=None, type=click.Path(exists=True), help="Data worktree path.")
 @click.option(
@@ -234,17 +250,19 @@ def data_validate(
 @click.pass_context
 def data_registry(
     ctx: click.Context,
+    store: str | None,
     branch: str | None,
     worktree: str | None,
     recipe_root: str | None,
 ) -> None:
     """Write registry.json into the data worktree."""
-    config = _data_config(ctx, branch, worktree, recipe_root)
+    config = _data_config(ctx, store, branch, worktree, recipe_root)
     registry = write_data_registry(config)
     click.echo(f"wrote {len(registry)} entries to {config.registry_path}")
 
 
 @data.command("clean")
+@click.option("--store", default=None, help="Named data store.")
 @click.option("--branch", default=None, help="Data branch name.")
 @click.option("--worktree", default=None, type=click.Path(exists=True), help="Data worktree path.")
 @click.option(
@@ -258,6 +276,7 @@ def data_registry(
 @click.pass_context
 def data_clean(
     ctx: click.Context,
+    store: str | None,
     branch: str | None,
     worktree: str | None,
     recipe_root: str | None,
@@ -266,7 +285,7 @@ def data_clean(
     """Remove declared generated artifacts and registry.json from the data worktree."""
     if not yes:
         raise click.ClickException("Refusing to clean without --yes")
-    config = _data_config(ctx, branch, worktree, recipe_root)
+    config = _data_config(ctx, store, branch, worktree, recipe_root)
     removed = clean_data(config)
     for path in removed:
         click.echo(f"removed {path}")
@@ -275,16 +294,23 @@ def data_clean(
 
 
 @data.command("status")
+@click.option("--store", default=None, help="Named data store.")
 @click.option("--branch", default=None, help="Data branch name.")
 @click.option("--worktree", default=None, type=click.Path(exists=True), help="Data worktree path.")
 @click.pass_context
-def data_store_status(ctx: click.Context, branch: str | None, worktree: str | None) -> None:
+def data_store_status(
+    ctx: click.Context,
+    store: str | None,
+    branch: str | None,
+    worktree: str | None,
+) -> None:
     """Show git status for the data worktree."""
-    config = _data_config(ctx, branch, worktree)
+    config = _data_config(ctx, store, branch, worktree)
     click.echo(data_status(config) or "clean")
 
 
 @data.command("publish")
+@click.option("--store", default=None, help="Named data store.")
 @click.option("--branch", default=None, help="Data branch name.")
 @click.option("--worktree", default=None, type=click.Path(exists=True), help="Data worktree path.")
 @click.option("--remote", default="origin", show_default=True)
@@ -292,15 +318,16 @@ def data_store_status(ctx: click.Context, branch: str | None, worktree: str | No
 @click.pass_context
 def data_publish(
     ctx: click.Context,
+    store: str | None,
     branch: str | None,
     worktree: str | None,
     remote: str,
     message: str,
 ) -> None:
     """Commit and push generated data from the data worktree."""
-    config = _data_config(ctx, branch, worktree)
+    config = _data_config(ctx, store, branch, worktree)
     publish_data_store(config, message=message, remote=remote)
-    click.echo(f"pushed {branch} to {remote}")
+    click.echo(f"pushed {config.branch} to {remote}")
 
 
 if __name__ == "__main__":

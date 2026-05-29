@@ -53,23 +53,25 @@ local rebuild, run `mcd data clean --yes` before rebuilding. Remote original sou
 files are cached with `pooch`; data-store builds keep that cache outside the data
 worktree by default at `.cache/mini-climate-data/sources`.
 
-Defaults are stored in the packaged `mini_climate_data/config/defaults.toml`. To
-override them locally, create `mini-climate-data.toml` in the repository root or point
+Defaults are stored in the packaged `mini_climate_data/config/defaults.toml`. Data can
+also be published to named stores, including external repositories. To override
+defaults locally, create `mini-climate-data.toml` in the repository root or point
 `MINI_CLIMATE_DATA_CONFIG` at a TOML file. For one command, pass `--config` before the
-subcommand:
+subcommand and select a store with `--store`:
 
 ```console
-mcd --config data-test.toml data build-all
+mcd --config data-test.toml data build-all --store atlas
 ```
 
 ```toml
-[data_store]
-branch = "data-test"
-worktree = ".worktrees/data-test"
+[stores.atlas]
+repo = "git@github.com:macpingu/mini-climate-atlas-data.git"
+base_url = "https://raw.githubusercontent.com/macpingu/mini-climate-atlas-data/"
+branch = "data"
+worktree = ".worktrees/atlas-data"
+recipe_root = "recipes/c3s-cica-atlas"
 source_cache = "/big/local/cache/mini-climate-data/sources"
-
-[fetch]
-version = "data-test"
+registry = "registry.json"
 ```
 
 ## Development

@@ -222,6 +222,24 @@ override them with a repository-local `mini-climate-data.toml`, by setting
 one-off runs, and fetch URL/version environment variables remain available for
 downstream consumers.
 
+The default data store remains the `data` branch of this repository. Additional named
+stores can point at external repositories:
+
+```toml
+[stores.atlas]
+repo = "git@github.com:macpingu/mini-climate-atlas-data.git"
+base_url = "https://raw.githubusercontent.com/macpingu/mini-climate-atlas-data/"
+branch = "data"
+worktree = ".worktrees/atlas-data"
+recipe_root = "recipes/c3s-cica-atlas"
+source_cache = ".cache/mini-climate-data/sources"
+registry = "registry.json"
+```
+
+Use `mcd data build-all --store atlas` and `mcd data publish --store atlas` to target a
+named store. Fetching can also select a store explicitly with `mcd.fetch(name,
+store="atlas")`.
+
 This keeps incremental local builds cheap: rebuild the recipe whose source or reducer
 changed, regenerate `registry.json`, validate, then commit and push from the data
 worktree. For a clean local rebuild, run `mcd data clean --yes` to remove declared

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 from types import SimpleNamespace
 
 from mini_climate_data import fetching
@@ -11,6 +12,7 @@ from mini_climate_data.config import (
     ENV_CONFIG,
     ENV_DATA_VERSION,
     REGISTRY_NAME,
+    Settings,
     config_value,
     configured_base_url,
     configured_data_version,
@@ -78,18 +80,48 @@ name = "custom-registry.json"
 
     config = load_config()
 
-    assert config["data_store"]["branch"] == "data-preview"
-    assert config["data_store"]["worktree"] == ".worktrees/data"
-    assert config["fetch"]["base_url"] == "https://example.test/data"
-    assert config["registry"]["name"] == "custom-registry.json"
+    assert config["stores"]["default"]["branch"] == "data-preview"
+    assert config["stores"]["default"]["worktree"] == ".worktrees/data"
+    assert config["stores"]["default"]["base_url"] == "https://example.test/data"
+    assert config["stores"]["default"]["registry"] == "custom-registry.json"
+
+
+def test_named_store_config_can_resolve_registry_url(tmp_path: Path) -> None:
+    config_path = tmp_path / "stores.toml"
+    config_path.write_text(
+        """
+[stores.atlas]
+base_url = "https://example.test/atlas"
+branch = "published"
+worktree = ".worktrees/atlas"
+recipe_root = "recipes/c3s-cica-atlas"
+registry = "atlas-registry.json"
+""",
+        encoding="utf-8",
+    )
+    settings = Settings.load(config_path)
+
+    assert settings.store("atlas").source_cache == ".cache/mini-climate-data/sources"
+    assert (
+        registry_url(store="atlas", settings=settings)
+        == "https://example.test/atlas/published/atlas-registry.json"
+    )
 
 
 def test_fetch_loads_remote_registry_by_default(monkeypatch) -> None:
     monkeypatch.setitem(sys.modules, "pooch", FakePoochModule)
 
-    def fake_load_remote_registry(base_url: str, version: str) -> dict[str, str]:
+    def fake_load_remote_registry(
+        base_url: str,
+        version: str,
+        *,
+        store: str | None = None,
+        settings: Settings | None = None,
+    ) -> dict[str, str]:
         assert base_url == DEFAULT_BASE_URL
         assert version == DEFAULT_DATA_BRANCH
+        assert store is None
+        assert settings is not None
         return {"example/hello-climate.txt": "sha256:" + "b" * 64}
 
     monkeypatch.setattr(fetching, "load_remote_registry", fake_load_remote_registry)
