@@ -8,6 +8,12 @@ The `data` branch is a disposable generated cache. It contains reduced artifacts
 
 Generated climate artifacts are deliberately excluded from the Python package. The package should contain code, recipe definitions, schemas, and lightweight metadata only. Consumers fetch data by logical name through `pooch`.
 
+The default generated-data branch is named `data`, matching the default fetch
+version. Commands should keep the branch configurable so maintainers can use temporary
+branches for testing, snapshots, or migration work. Source releases and recipe/config
+history are still tracked on `main` with normal git tags; generated data branches are
+operational caches rather than the durable source of truth.
+
 The base installation should stay small and general-purpose. Reducers and source
 integrations that pull in heavier, compiled, or provider-specific dependencies belong
 behind optional extras. For example, `fetch` installs `pooch`, `netcdf` installs the
@@ -181,4 +187,34 @@ mcd validate recipes/example/hello-climate.yml
 mcd build-registry
 ```
 
-Publishing to the `data` branch should be owned by CI once repository permissions and release policy are settled.
+## Local Data Store Workflow
+
+Generated artifacts are published from a local git worktree, similar in spirit to
+GitHub Pages:
+
+```console
+mcd data init
+mcd data build recipes/example/hello-climate.yml
+mcd data validate --recipes recipes/example
+mcd data registry --recipes recipes/example
+mcd data status
+mcd data publish
+```
+
+The default worktree is `.worktrees/data` and the default branch is `data`. Both can be
+overridden:
+
+```console
+mcd data init --branch data-test --worktree .worktrees/data-test
+mcd data build-all --branch data-test --worktree .worktrees/data-test
+```
+
+This keeps incremental local builds cheap: rebuild the recipe whose source or reducer
+changed, regenerate `registry.json`, validate, then commit and push from the data
+worktree. For a clean local rebuild, run `mcd data clean --yes` to remove declared
+artifacts and `registry.json`, then rerun `mcd data build-all`. Recreating or renaming
+the branch itself is a separate maintenance operation and should remain explicit.
+
+Git LFS, git-annex, or DataLad could become useful later if generated artifacts grow
+past what ordinary git branches handle comfortably. They are intentionally not required
+for the first data-store workflow.
