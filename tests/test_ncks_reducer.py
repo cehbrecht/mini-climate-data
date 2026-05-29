@@ -56,6 +56,7 @@ validation:
     assert commands == [
         [
             "ncks",
+            "-h",
             "-7",
             "-L",
             "1",

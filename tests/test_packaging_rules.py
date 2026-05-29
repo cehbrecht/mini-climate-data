@@ -6,7 +6,15 @@ GENERATED_SUFFIXES = {".nc", ".zarr"}
 
 
 def test_generated_artifacts_are_not_committed_to_source_tree() -> None:
-    ignored_roots = {".git", ".pytest_cache", "artifacts", "build-artifacts", "data", "dist"}
+    ignored_roots = {
+        ".cache",
+        ".git",
+        ".pytest_cache",
+        "artifacts",
+        "build-artifacts",
+        "data",
+        "dist",
+    }
     offenders: list[Path] = []
 
     for path in Path(".").rglob("*"):

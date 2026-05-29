@@ -24,8 +24,8 @@ artifacts:
   - path: c3s-cica-atlas/era5/psl_era5_mon_194001-202512_v025-small.nc
     logical_name: c3s-cica-atlas/era5/psl_era5_mon_194001-202512_v025-small.nc
     max_size: 1048576
-    size: 284355
-    checksum: sha256:24255daae6cfc0a4409aafc3b9b5af3bf28d9739c5f19d666f6d133a8a6c9693
+    size: 283321
+    checksum: sha256:fbada1801e4b74a0a300ffe42482dde668a5f15c76e9edc62fe554154b83e273
 validation:
   openable: true
   engine: netcdf
