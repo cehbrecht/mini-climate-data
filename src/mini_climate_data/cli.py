@@ -7,6 +7,7 @@ import click
 from mini_climate_data.data_store import (
     DEFAULT_DATA_BRANCH,
     DEFAULT_DATA_WORKTREE,
+    DEFAULT_SOURCE_CACHE,
     DataStoreConfig,
     build_all_data,
     build_data_recipe,
@@ -118,8 +119,18 @@ def data() -> None:
     """Manage the local git-backed generated data store."""
 
 
-def _data_config(branch: str, worktree: str, recipes: str = "recipes") -> DataStoreConfig:
-    return DataStoreConfig(branch=branch, worktree=Path(worktree), recipe_root=Path(recipes))
+def _data_config(
+    branch: str,
+    worktree: str,
+    recipes: str = "recipes",
+    source_cache: str = DEFAULT_SOURCE_CACHE,
+) -> DataStoreConfig:
+    return DataStoreConfig(
+        branch=branch,
+        worktree=Path(worktree),
+        recipe_root=Path(recipes),
+        source_cache=Path(source_cache),
+    )
 
 
 @data.command("init")
@@ -141,9 +152,10 @@ def data_init(branch: str, worktree: str, orphan: bool) -> None:
 @click.argument("recipe", type=click.Path(exists=True))
 @click.option("--branch", default=DEFAULT_DATA_BRANCH, show_default=True)
 @click.option("--worktree", default=DEFAULT_DATA_WORKTREE, show_default=True, type=click.Path())
-def data_build(recipe: str, branch: str, worktree: str) -> None:
+@click.option("--source-cache", default=DEFAULT_SOURCE_CACHE, show_default=True, type=click.Path())
+def data_build(recipe: str, branch: str, worktree: str, source_cache: str) -> None:
     """Build one recipe into the data worktree."""
-    config = _data_config(branch, worktree)
+    config = _data_config(branch, worktree, source_cache=source_cache)
     for path in build_data_recipe(recipe, config):
         click.echo(f"wrote {path}")
 
@@ -151,6 +163,7 @@ def data_build(recipe: str, branch: str, worktree: str) -> None:
 @data.command("build-all")
 @click.option("--branch", default=DEFAULT_DATA_BRANCH, show_default=True)
 @click.option("--worktree", default=DEFAULT_DATA_WORKTREE, show_default=True, type=click.Path())
+@click.option("--source-cache", default=DEFAULT_SOURCE_CACHE, show_default=True, type=click.Path())
 @click.option(
     "--recipes",
     "recipe_root",
@@ -158,9 +171,9 @@ def data_build(recipe: str, branch: str, worktree: str) -> None:
     show_default=True,
     type=click.Path(exists=True),
 )
-def data_build_all(branch: str, worktree: str, recipe_root: str) -> None:
+def data_build_all(branch: str, worktree: str, source_cache: str, recipe_root: str) -> None:
     """Build all recipes into the data worktree."""
-    config = _data_config(branch, worktree, recipe_root)
+    config = _data_config(branch, worktree, recipe_root, source_cache)
     for path in build_all_data(config):
         click.echo(f"wrote {path}")
 

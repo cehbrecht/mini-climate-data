@@ -6,13 +6,14 @@ from shutil import rmtree
 
 from git import Repo
 
-from mini_climate_data.recipes import iter_recipes
+from mini_climate_data.recipes import Recipe, iter_recipes, load_recipe
 from mini_climate_data.reducers import build_recipe
 from mini_climate_data.registry import REGISTRY_NAME, build_registry
 from mini_climate_data.validation import validate_artifacts
 
 DEFAULT_DATA_BRANCH = "data"
 DEFAULT_DATA_WORKTREE = ".worktrees/data"
+DEFAULT_SOURCE_CACHE = ".cache/mini-climate-data/sources"
 
 
 @dataclass(frozen=True)
@@ -22,6 +23,7 @@ class DataStoreConfig:
     branch: str = DEFAULT_DATA_BRANCH
     worktree: Path = Path(DEFAULT_DATA_WORKTREE)
     recipe_root: Path = Path("recipes")
+    source_cache: Path = Path(DEFAULT_SOURCE_CACHE)
 
     @property
     def registry_path(self) -> Path:
@@ -54,15 +56,29 @@ def init_data_worktree(config: DataStoreConfig, *, orphan: bool = False) -> Path
 
 def build_data_recipe(recipe: str | Path, config: DataStoreConfig) -> list[Path]:
     """Build one recipe into the data worktree."""
-    return build_recipe(recipe, config.worktree)
+    return build_recipe_with_source_cache(recipe, config)
 
 
 def build_all_data(config: DataStoreConfig) -> list[Path]:
     """Build all recipes into the data worktree."""
     built: list[Path] = []
     for recipe in iter_recipes(config.recipe_root):
-        built.extend(build_recipe(recipe, config.worktree))
+        built.extend(build_recipe_with_source_cache(recipe, config))
     return built
+
+
+def build_recipe_with_source_cache(recipe: str | Path, config: DataStoreConfig) -> list[Path]:
+    """Build a recipe while keeping downloaded original sources outside the data branch."""
+    loaded = recipe if isinstance(recipe, Recipe) else load_recipe(recipe)
+
+    data = dict(loaded.data)
+    reducer = dict(data["reducer"])
+    parameters = dict(reducer.get("parameters", {}))
+    parameters.setdefault("source_cache", str(config.source_cache))
+    reducer["parameters"] = parameters
+    data["reducer"] = reducer
+    patched = type(loaded)(loaded.path, data)
+    return build_recipe(patched, config.worktree)
 
 
 def validate_data(config: DataStoreConfig) -> list[Path]:

@@ -5,6 +5,7 @@ PIP ?= $(PYTHON) -m pip
 DATA_BRANCH ?= data
 DATA_WORKTREE ?= .worktrees/data
 DATA_RECIPES ?= recipes
+SOURCE_CACHE ?= .cache/mini-climate-data/sources
 
 help:
 	@printf "Available targets:\n"
@@ -22,7 +23,7 @@ help:
 	@printf "  data-clean     Remove declared generated data files\n"
 	@printf "  data-status    Show data worktree git status\n"
 	@printf "  data-publish   Commit and push generated data\n"
-	@printf "\nData variables: DATA_BRANCH=%s DATA_WORKTREE=%s DATA_RECIPES=%s\n" "$(DATA_BRANCH)" "$(DATA_WORKTREE)" "$(DATA_RECIPES)"
+	@printf "\nData variables: DATA_BRANCH=%s DATA_WORKTREE=%s DATA_RECIPES=%s SOURCE_CACHE=%s\n" "$(DATA_BRANCH)" "$(DATA_WORKTREE)" "$(DATA_RECIPES)" "$(SOURCE_CACHE)"
 
 install:
 	$(PIP) install .
@@ -51,7 +52,7 @@ data-init:
 	mcd data init --branch $(DATA_BRANCH) --worktree $(DATA_WORKTREE)
 
 data-build:
-	mcd data build-all --branch $(DATA_BRANCH) --worktree $(DATA_WORKTREE) --recipes $(DATA_RECIPES)
+	mcd data build-all --branch $(DATA_BRANCH) --worktree $(DATA_WORKTREE) --source-cache $(SOURCE_CACHE) --recipes $(DATA_RECIPES)
 
 data-validate:
 	mcd data validate --branch $(DATA_BRANCH) --worktree $(DATA_WORKTREE) --recipes $(DATA_RECIPES)

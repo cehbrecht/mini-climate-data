@@ -49,7 +49,9 @@ mcd data publish
 ```
 
 Use `--branch` and `--worktree` to target a test or snapshot data branch. For a clean
-local rebuild, run `mcd data clean --yes` before rebuilding.
+local rebuild, run `mcd data clean --yes` before rebuilding. Remote original source
+files are cached with `pooch`; data-store builds keep that cache outside the data
+worktree by default at `.cache/mini-climate-data/sources`.
 
 ## Development
 

@@ -2,12 +2,10 @@ from __future__ import annotations
 
 import glob
 import hashlib
-import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
-from urllib.request import urlopen
 
 from mini_climate_data.recipes import Recipe
 from mini_climate_data.sources import resolve_intake_url
@@ -98,18 +96,25 @@ def is_remote_url(value: str) -> bool:
 
 
 def download_source(url: str, cache_root: Path) -> Path:
-    """Download a remote original file into a deterministic local source cache."""
+    """Download a remote original file into a local source cache."""
+    try:
+        import pooch
+    except ImportError as exc:
+        raise RuntimeError("Install mini-climate-data[fetch] to cache remote sources") from exc
+
     cache_root.mkdir(parents=True, exist_ok=True)
     parsed = urlparse(url)
     filename = Path(parsed.path).name or "source"
     digest = hashlib.sha256(url.encode("utf-8")).hexdigest()[:12]
-    target = cache_root / f"{digest}-{filename}"
-    if target.is_file():
-        return target
-
-    with urlopen(url) as response, target.open("wb") as output:
-        shutil.copyfileobj(response, output)
-    return target
+    return Path(
+        pooch.retrieve(
+            url,
+            known_hash=None,
+            fname=f"{digest}-{filename}",
+            path=cache_root,
+            progressbar=True,
+        )
+    )
 
 
 def strip_file_url(value: str) -> str:

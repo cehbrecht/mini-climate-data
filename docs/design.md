@@ -209,6 +209,12 @@ mcd data init --branch data-test --worktree .worktrees/data-test
 mcd data build-all --branch data-test --worktree .worktrees/data-test
 ```
 
+Remote original source files are cached locally with `pooch` before reducers read
+them. For data-store builds, the default source cache is
+`.cache/mini-climate-data/sources`, intentionally outside the generated data worktree
+so original large files are not committed to the `data` branch. Use `--source-cache`
+or the Make `SOURCE_CACHE` variable to put this cache on a larger local disk.
+
 This keeps incremental local builds cheap: rebuild the recipe whose source or reducer
 changed, regenerate `registry.json`, validate, then commit and push from the data
 worktree. For a clean local rebuild, run `mcd data clean --yes` to remove declared
