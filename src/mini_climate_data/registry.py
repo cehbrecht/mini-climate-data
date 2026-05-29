@@ -9,8 +9,6 @@ import yaml
 
 from mini_climate_data.recipes import iter_recipes
 
-REGISTRY_NAME = "registry.json"
-
 
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()

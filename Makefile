@@ -2,10 +2,11 @@
 
 PYTHON ?= python
 PIP ?= $(PYTHON) -m pip
-DATA_BRANCH ?= data
-DATA_WORKTREE ?= .worktrees/data
-DATA_RECIPES ?= recipes
-SOURCE_CACHE ?= .cache/mini-climate-data/sources
+CONFIG_VALUE = $(PYTHON) src/mini_climate_data/config/__init__.py $(1)
+DATA_BRANCH ?= $(shell $(call CONFIG_VALUE,DEFAULT_DATA_BRANCH))
+DATA_WORKTREE ?= $(shell $(call CONFIG_VALUE,DEFAULT_DATA_WORKTREE))
+DATA_RECIPES ?= $(shell $(call CONFIG_VALUE,DEFAULT_RECIPE_ROOT))
+SOURCE_CACHE ?= $(shell $(call CONFIG_VALUE,DEFAULT_SOURCE_CACHE))
 
 help:
 	@printf "Available targets:\n"

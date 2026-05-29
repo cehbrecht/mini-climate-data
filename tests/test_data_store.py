@@ -6,11 +6,14 @@ from click.testing import CliRunner
 from git import Repo
 
 from mini_climate_data.cli import main
-from mini_climate_data.data_store import (
+from mini_climate_data.config import (
     DEFAULT_DATA_BRANCH,
     DEFAULT_DATA_WORKTREE,
     DEFAULT_SOURCE_CACHE,
+    REGISTRY_NAME,
     DataStoreConfig,
+)
+from mini_climate_data.data_store import (
     build_all_data,
     build_recipe_with_source_cache,
     clean_data,
@@ -27,7 +30,7 @@ def test_data_store_defaults() -> None:
     assert config.branch == DEFAULT_DATA_BRANCH
     assert config.worktree == Path(DEFAULT_DATA_WORKTREE)
     assert config.source_cache == Path(DEFAULT_SOURCE_CACHE)
-    assert config.registry_path == Path(DEFAULT_DATA_WORKTREE) / "registry.json"
+    assert config.registry_path == Path(DEFAULT_DATA_WORKTREE) / REGISTRY_NAME
 
 
 def test_build_validate_and_registry_for_data_worktree(tmp_path: Path) -> None:
@@ -156,3 +159,33 @@ def test_data_cli_build_validate_and_registry(tmp_path: Path) -> None:
     assert "ok" in validate_result.output
     assert registry_result.exit_code == 0
     assert "registry.json" in registry_result.output
+
+
+def test_data_cli_uses_config_file_defaults(tmp_path: Path) -> None:
+    runner = CliRunner()
+    worktree = tmp_path / "configured-data"
+    source_cache = tmp_path / "configured-sources"
+    config_path = tmp_path / "mcd.toml"
+    config_path.write_text(
+        f"""
+[data_store]
+branch = "data-from-config"
+worktree = "{worktree}"
+recipe_root = "recipes/example"
+source_cache = "{source_cache}"
+
+[registry]
+name = "configured-registry.json"
+""",
+        encoding="utf-8",
+    )
+
+    build_result = runner.invoke(main, ["--config", str(config_path), "data", "build-all"])
+    registry_result = runner.invoke(main, ["--config", str(config_path), "data", "registry"])
+
+    assert build_result.exit_code == 0
+    assert "wrote" in build_result.output
+    assert registry_result.exit_code == 0
+    assert f"{worktree}/configured-registry.json" in registry_result.output
+    assert (worktree / "example/hello-climate.txt").exists()
+    assert (worktree / "configured-registry.json").exists()

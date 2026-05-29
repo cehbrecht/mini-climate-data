@@ -9,6 +9,7 @@ dependencies:
   - gitpython
   - jsonschema
   - pyyaml
+  - tomli
 
   # Fetching
   - pooch

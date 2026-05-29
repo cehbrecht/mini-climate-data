@@ -1,22 +1,19 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 from urllib.request import urlopen
 
-DEFAULT_BASE_URL = "https://raw.githubusercontent.com/macpingu/mini-climate-data/"
-DEFAULT_VERSION = "data"
-REGISTRY_NAME = "registry.json"
+from mini_climate_data.config import (
+    REGISTRY_NAME,
+    configured_base_url,
+    configured_data_version,
+)
 
 
 def registry_url(base_url: str | None = None, version: str | None = None) -> str:
     """Return the registry URL for a generated data branch or version."""
-    version = version or os.environ.get("MINI_CLIMATE_DATA_VERSION", DEFAULT_VERSION)
-    base = base_url or os.environ.get("MINI_CLIMATE_DATA_BASE_URL", DEFAULT_BASE_URL)
-    if not base.endswith("/"):
-        base = f"{base}/"
-    return f"{base}{version}/{REGISTRY_NAME}"
+    return f"{configured_base_url(base_url)}{configured_data_version(version)}/{REGISTRY_NAME}"
 
 
 def load_remote_registry(base_url: str | None = None, version: str | None = None) -> dict[str, str]:
@@ -44,10 +41,8 @@ def fetch(
     except ImportError as exc:
         raise RuntimeError("Install mini-climate-data[fetch] to fetch data") from exc
 
-    version = version or os.environ.get("MINI_CLIMATE_DATA_VERSION", DEFAULT_VERSION)
-    base = base_url or os.environ.get("MINI_CLIMATE_DATA_BASE_URL", DEFAULT_BASE_URL)
-    if not base.endswith("/"):
-        base = f"{base}/"
+    version = configured_data_version(version)
+    base = configured_base_url(base_url)
 
     downloader = pooch.create(
         path=path or pooch.os_cache("mini-climate-data"),

@@ -1,33 +1,15 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 from shutil import rmtree
 
 from git import Repo
 
+from mini_climate_data.config import DataStoreConfig
 from mini_climate_data.recipes import Recipe, iter_recipes, load_recipe
 from mini_climate_data.reducers import build_recipe
-from mini_climate_data.registry import REGISTRY_NAME, build_registry
+from mini_climate_data.registry import build_registry
 from mini_climate_data.validation import validate_artifacts
-
-DEFAULT_DATA_BRANCH = "data"
-DEFAULT_DATA_WORKTREE = ".worktrees/data"
-DEFAULT_SOURCE_CACHE = ".cache/mini-climate-data/sources"
-
-
-@dataclass(frozen=True)
-class DataStoreConfig:
-    """Local git-backed generated data store settings."""
-
-    branch: str = DEFAULT_DATA_BRANCH
-    worktree: Path = Path(DEFAULT_DATA_WORKTREE)
-    recipe_root: Path = Path("recipes")
-    source_cache: Path = Path(DEFAULT_SOURCE_CACHE)
-
-    @property
-    def registry_path(self) -> Path:
-        return self.worktree / REGISTRY_NAME
 
 
 def source_repo(path: str | Path = ".") -> Repo:

@@ -53,6 +53,25 @@ local rebuild, run `mcd data clean --yes` before rebuilding. Remote original sou
 files are cached with `pooch`; data-store builds keep that cache outside the data
 worktree by default at `.cache/mini-climate-data/sources`.
 
+Defaults are stored in the packaged `mini_climate_data/config/defaults.toml`. To
+override them locally, create `mini-climate-data.toml` in the repository root or point
+`MINI_CLIMATE_DATA_CONFIG` at a TOML file. For one command, pass `--config` before the
+subcommand:
+
+```console
+mcd --config data-test.toml data build-all
+```
+
+```toml
+[data_store]
+branch = "data-test"
+worktree = ".worktrees/data-test"
+source_cache = "/big/local/cache/mini-climate-data/sources"
+
+[fetch]
+version = "data-test"
+```
+
 ## Development
 
 ```console
