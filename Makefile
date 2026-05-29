@@ -2,7 +2,7 @@
 
 PYTHON ?= python
 PIP ?= $(PYTHON) -m pip
-CONFIG_VALUE = $(PYTHON) src/mini_climate_data/config.py $(1)
+CONFIG_VALUE = $(PYTHON) src/mini_climate_data/config/__init__.py $(1)
 DATA_BRANCH ?= $(shell $(call CONFIG_VALUE,DEFAULT_DATA_BRANCH))
 DATA_WORKTREE ?= $(shell $(call CONFIG_VALUE,DEFAULT_DATA_WORKTREE))
 DATA_RECIPES ?= $(shell $(call CONFIG_VALUE,DEFAULT_RECIPE_ROOT))
