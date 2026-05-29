@@ -6,11 +6,14 @@ from click.testing import CliRunner
 from git import Repo
 
 from mini_climate_data.cli import main
-from mini_climate_data.data_store import (
+from mini_climate_data.config import (
     DEFAULT_DATA_BRANCH,
     DEFAULT_DATA_WORKTREE,
     DEFAULT_SOURCE_CACHE,
+    REGISTRY_NAME,
     DataStoreConfig,
+)
+from mini_climate_data.data_store import (
     build_all_data,
     build_recipe_with_source_cache,
     clean_data,
@@ -27,7 +30,7 @@ def test_data_store_defaults() -> None:
     assert config.branch == DEFAULT_DATA_BRANCH
     assert config.worktree == Path(DEFAULT_DATA_WORKTREE)
     assert config.source_cache == Path(DEFAULT_SOURCE_CACHE)
-    assert config.registry_path == Path(DEFAULT_DATA_WORKTREE) / "registry.json"
+    assert config.registry_path == Path(DEFAULT_DATA_WORKTREE) / REGISTRY_NAME
 
 
 def test_build_validate_and_registry_for_data_worktree(tmp_path: Path) -> None:

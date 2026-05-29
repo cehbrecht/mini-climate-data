@@ -4,11 +4,13 @@ from pathlib import Path
 
 import click
 
-from mini_climate_data.data_store import (
+from mini_climate_data.config import (
     DEFAULT_DATA_BRANCH,
     DEFAULT_DATA_WORKTREE,
     DEFAULT_SOURCE_CACHE,
     DataStoreConfig,
+)
+from mini_climate_data.data_store import (
     build_all_data,
     build_data_recipe,
     clean_data,
